@@ -1,0 +1,45 @@
+<div class="container_fluid">
+	<div class="row p-3 page-header">
+		<div class="col-12">
+			<div class="actions float-end">
+				<a href="<?=$url->get('/webs/data/') . $web->Id;?>" class="btn btn-sm btn-primary"><i class="far fa-edit"></i> Editar</a>
+				<a href="<?=$url->get('/webs/delete/') . $web->Id;?>" class="btn btn-sm btn-danger"><i class="fas fa-trash-alt"></i> Eliminar</a>
+			</div>
+			<nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+				<ol class="breadcrumb mb-3 py-1">
+					<li class="breadcrumb-item"><small><a href="<?=$url->get('/')?>">Inicio</a></small></li>
+					<li class="breadcrumb-item active" aria-current="page"><small>Configuración</small></li>
+					<li class="breadcrumb-item active" aria-current="page"><small><a href="<?=$url->get('/webs/')?>">Webs</a></small></li>
+				</ol>
+			</nav>
+		</div>
+		<div class="col-12">
+			<div class="float-start">
+				<h2 class="mb-0"><?=$web->Name;?></h2>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="container_fluid">
+	<div class="row content p-3">
+		<div class="col">
+			<div class="card-body">
+				<fieldset>
+					<dl class="row">
+						<dt class="col-sm-3">Nombre:</dt>
+						<dd class="col-sm-9"><?=$web->Name;?></dd>
+
+						<dt class="col-sm-3">Host:</dt>
+						<dd class="col-sm-9"><?=$web->Host;?></dd>
+
+						<dt class="col-sm-3">Tema:</dt>
+						<dd class="col-sm-9"><?=$web->getTheme() ? $web->getTheme()->Title : "";?></dd>
+
+						<dt class="col-sm-3">Estado:</dt>
+						<dd class="col-sm-9"><?=$status[$web->Published];?></dd>
+					</dl>
+				</fieldset>
+			</div>
+		</div>
+	</div>
+</div>

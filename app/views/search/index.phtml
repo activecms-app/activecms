@@ -1,0 +1,151 @@
+<div class="container_fluid">
+	<div class="row p-3 page-header">
+		<div class="col-12">
+			<nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+				<ol class="breadcrumb mb-3 py-1">
+					<li class="breadcrumb-item"><small><a href="<?=$url->get('/')?>">Inicio</a></small></li>
+					<li class="breadcrumb-item active" aria-current="page"><small><a href="<?=$url->get('/users/')?>">Buscador</a></small></li>
+				</ol>
+			</nav>
+		</div>
+		<div class="col-12">
+			<div class="profile-name float-start">
+				<h2 class="mb-0">Buscador</h2>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="container_fluid">
+	<form class="row m-0 pt-3 content" method="post" action="<?=$url->get('/search/')?>">
+		<div class="col-12 col-md-2 mb-3">
+			<label for="status" class="form-label">Texto</label>
+<?php
+echo $this->tag->textField([
+	'q', 
+	'class' => 'form-control',
+	'value' => $text
+]);
+?>
+		</div>
+		<div class="col-12 col-md-2 mb-3">
+			<label for="published" class="form-label">Publicado</label>
+<?php
+echo $this->tag->select([
+	'published', 
+	Objects::$published,
+	'useEmpty'   => true,
+	'emptyText'  => 'Todos...',
+	'emptyValue' => '',
+	'class' => 'form-select'
+]);
+?>
+		</div>
+		<div class="col-12 col-md-2 mb-3">
+			<label for="type" class="form-label">Tipo</label>
+<?php
+echo $this->tag->select([
+	'type', 
+	Types::getAll(),
+	'using' => ['Id', 'Name'],
+	'useEmpty'   => true,
+	'emptyText'  => 'Todos...',
+	'emptyValue' => '',
+	'class' => 'form-select'
+]);
+?>
+		</div>
+		<div class="col-12 col-md-2 mb-3 align-text-bottom">
+			<label class="form-label">&nbsp;</label>
+			<input type="submit" name="search" value="Buscar" class="form-control btn btn-primary">
+		</div>
+<!--		<div class="col-12 col-md-2 mb-3">
+			<label for="status" class="form-label">Tipo</label>
+			<select class="form-select" aria-label="Default select example">
+				<option selected>Fecha de publicación</option>
+				<option value="1">x</option>
+			</select>
+		</div>
+		<div class="col-12 col-md-2 mb-3">
+			<select class="form-select" aria-label="Default select example">
+				<option selected>Responsable</option>
+				<option value="1">x</option>
+			</select>
+		</div>
+		<div class="col-12 col-md-2 mb-3 d-flex">
+			<div class="form-check form-switch align-self-center">
+				<input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault">
+				<label class="form-check-label" for="flexSwitchCheckDefault">Buscar Datos</label>
+			</div>
+		</div>
+-->
+	</form>
+	<!-- div class="row m-0 content bg-white">
+		<div class="col-12 p-0">
+			<div class="search">
+				<input type="text" placeholder="Buscar..." name="q" value="<?=$text?>">
+			</div>
+		</div>
+	</div-->
+<?php
+if( isset($paginator) )
+{
+?>
+	<div class="row m-0 content bg-white">
+		<div class="col-12">
+			<div class="alert alert-success" role="alert">
+				<i class="fas fa-check-circle me-2"></i><?=count($paginator->getTotalItems())?> elementos encontrados
+			</div>
+			<div class="files-list row px-3 pb-3">
+<table class="table">
+	<thead>
+		<tr>
+			<th width="40"></th>
+			<th>Título</th>
+			<th>Estado</th>
+			<th>Último Cambio</th>
+		</tr>
+	</thead>
+	<tbody>
+<?php
+if( $paginator->hasItems() )
+{
+	foreach($paginator->getItems() as $object)
+	{
+		echo '<tr>';
+		 //echo '<tr onclick="window.location.href = \'', $url->get('object/list' . $folder->getPath($urlpath));'" style="cursor:pointer;">
+		echo '<td align="center">';
+		echo '<div class="profile-image rounded-circle ', $object->isPublished() ? 'bg-success' : 'bg-warning', ' text-center" style="width: 32px; height:32px; line-height: 27px;"><i class="fas fa-', $object->getType()->Class, ' align-middle"></i></div>';
+		echo '</td>';
+		echo '<td>', $object->getObjectVersion()->Title, '</td>';
+		echo '<td>', $object->isPublished() ? 'Publicado' : 'Borrador', '</td>';
+		echo '<td>', App\Library\DateUtils::DateToHuman($object->getLastChange()), '<br>', $object->lastuser->getDisplayName(), '</td>';
+		echo '</tr>';
+	}
+}
+?>
+	</tbody>
+</table>
+			</div>
+		</div>
+	</div>
+	<!--div class="row m-0 content bg-white">
+		<div class="col-12">
+			<nav aria-label="Page navigation example">
+				<ul class="pagination justify-content-center">
+					<li class="page-item disabled">
+						<a class="page-link" href="#" tabindex="-1" aria-disabled="true">Anterior</a>
+					</li>
+					<li class="page-item active"><a class="page-link" href="#">1</a></li>
+					<li class="page-item"><a class="page-link" href="#">2</a></li>
+					<li class="page-item"><a class="page-link" href="#">3</a></li>
+					<li class="page-item">
+						<a class="page-link" href="#">Siguiente</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div-->
+<?php
+}
+?>
+</div>

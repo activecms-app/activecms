@@ -1,0 +1,85 @@
+<script>
+function searchUser(term)
+{
+	const users = document.getElementsByClassName('user-displayname');
+	Array.from(users).forEach(function(user) {
+		const displayname = user.textContent;
+		if( displayname.toLocaleLowerCase().indexOf(term) != -1 ) {
+			user.parentElement.style.display = 'table-row';
+		}
+		else {
+			user.parentElement.style.display = 'none';
+		}
+	});
+}
+</script>
+<div class="container_fluid">
+	<div class="row p-3 page-header">
+		<div class="col-12">
+			<div class="actions float-end">
+				<a href="<?=$url->get('/users/new')?>" class="btn btn-sm btn-primary">Nuevo</a>
+			</div>
+			<nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+				<ol class="breadcrumb mb-3 py-1">
+					<li class="breadcrumb-item"><small><a href="<?=$url->get('/')?>">Inicio</a></small></li>
+					<li class="breadcrumb-item active" aria-current="page"><small>Configuración</small></li>
+					<li class="breadcrumb-item active" aria-current="page"><small><a href="<?=$url->get('/users/')?>">Usuarios</a></small></li>
+				</ol>
+			</nav>
+		</div>
+		<div class="col-12">
+			<h2 class="mb-0">Usuarios <span class="badge bg-light"><?=$total;?></span></h2>
+		</div>
+	</div>
+</div>
+<div class="container_fluid">
+	<div class="row content p-3">
+		<div class="col">
+			<fieldset>
+			<a href="<?=$url->get('/users/');?>" class="btn btn-secondary <?=!isset($_REQUEST["rol"]) ? " active" : "";?>">Total <span class="badge bg-light text-secondary"><?=$total;?></span></a>
+			<?php foreach($roles as $rol):?>
+				<a href="<?=$url->get('/users/') . '?rol=' . $rol->Id;?>" class="btn btn-secondary<?php if($rol->countUsers() == 0):?> disabled<?php endif;?> <?=isset($_REQUEST["rol"]) && $_REQUEST["rol"] == $rol->Id ? " active" : "";?>"><?=$rol->Name?> <span class="badge bg-light text-secondary"><?=$rol->countUsers();?></span></a>
+			<?php endforeach;?>
+			</fieldset>
+		</div>
+	</div>
+	<div class="row content p-3">
+		<div class="col-4">
+			<input type="text" class="form-control" name="search" placeholder="Buscar por nombre" onkeyup="searchUser(this.value)">
+		</div>
+	</div>
+	<div class="row content p-3">
+		<div class="col">
+			<table class="table">
+				<thead>
+					<tr>
+						<th width="20%">Usuario</th>
+						<th width="40%">Nombre</th>
+						<th width="20%">Estado</th>
+						<th width="20%">Último acceso</th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php if( $users ):?>
+						<?php foreach($users as $user):?>
+							<?php $color = "";?>
+							<?php if($user->isActive() ):?>
+								<?php $color = 'text-success';?>
+							<?php elseif($user->isDisabled() ):?>
+								<?php $color = "text-warning";?>
+							<?php else:?>
+								<?php $color = "text-danger";?>
+							<?php endif;?>
+							<tr onclick="window.location.href = '<?=$url->get('/users/data/' . $user->Id);?>'">
+								<td><?=$user->Username;?></td>
+								<td class="user-displayname"><?=$user->getDisplayName();?></td>
+								<td><i class="fas fa-circle fa-xs <?=$color;?>"></i> &nbsp; <?=$user->getStatusName();?></td>
+								<td><?=$user->getLastAccess();?></td>
+							</tr>
+						<?php endforeach;?>
+					<?php endif;?>
+				</tbody>
+			</thead>
+		</div>
+	</div>
+</div>

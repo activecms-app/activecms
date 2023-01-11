@@ -1,0 +1,15 @@
+<?php
+$tabledata = TypesData::findFirst($td);
+if( $tabledata )
+{
+	$typesdatas = $object->getTypesDataTable($tabledata->Name);
+	echo '<input type="hidden" name="td" value="', $td, '">';
+	foreach($typesdatas as $typesdata)
+	{
+		echo '<div class="mb-3">';
+		echo '<label for="data_', $typesdata->Id, '" class="form-label">', $typesdata->Title, '</label>';
+		echo $typesdata->renderEdit($web, $object, -1, $_REQUEST['data'][$typesdata->Id] ?? null);
+		echo '</div>';
+	}
+}
+?>

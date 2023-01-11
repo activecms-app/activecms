@@ -1,0 +1,111 @@
+<style>
+.data-field {
+	background-color: ghostwhite;
+	border: 1px solid #ced4da;
+	border-radius: .25rem;
+	min-height: calc(1.5em + .75rem + 2px);
+	padding: 6px 12px;
+}
+</style>
+<form>
+<?php
+if( $object->hasTypesGroups() )
+{
+	echo '<div class="row tabs-header">';
+	echo '<div class="col-12 tabs">';
+	echo '<ul class="nav nav-tabs">';
+	$first = true;
+	foreach($object->getTypesGroups() as $typegroup)
+	{
+		echo '<li class="nav-item">';
+		echo '<a class="nav-link';
+		if( $first )
+		{
+			$first = false;
+			echo ' active';
+		}
+		echo '" data-bs-toggle="tab" href="#group_', $typegroup->Id, '">', $typegroup->Title, '</a></li>';
+	}
+	echo '</ul>';
+	echo '</div></div>';
+	echo '<div class="content p-3">';
+	echo '<div class="tab-content" id="dataTabs">';
+	$first = true;
+	foreach($object->getTypesGroups() as $typegroup)
+	{
+		echo '<div class="tab-pane';
+		if( $first ) echo ' active';
+		echo '" id="group_' . $typegroup->Id . '" role="tabpanel"><div class="row">';
+		if( $first )
+		{
+			$first = false;
+			echo '<div class="mb-3"><label for="Name" class="form-label">Título</label>';
+			echo '<div class="data-field">', $object->objectversion->Title, '</div>';
+			echo '</div>';
+		}
+		//Display fields
+		if( $object->hasTypesData($typegroup->Id) )
+		{
+			foreach($object->getTypesData($typegroup->Id, 1) as $typesdata)
+			{
+				$blockclass = ['mb-3'];
+				$labelclass = ['form-label'];
+				if( $typesdata->Options )
+				{
+					$options = json_decode($typesdata->Options);
+					if( isset($options->block->class) )
+					{
+						$blockclass[] = $options->block->class;
+					}
+					if( isset($options->label->class) )
+					{
+						$labelclass[] = $options->label->class;
+					}
+				}
+				echo '<div class="', implode(' ', $blockclass), '">';
+				echo '<label for="data_', $typesdata->Id, '" class="', implode(' ', $labelclass), '">', $typesdata->Title, '</label>';
+				echo $typesdata->renderView($web, $object);
+				echo '</div>';
+			}
+		}
+		echo '</div></div>';
+	}
+	echo '</div></div>';
+}
+else
+{
+?>
+<div class="content p-3">
+<div class="row">
+<?php
+		echo '<div class="mb-3"><label for="Name" class="form-label">Título</label>';
+		echo '<div class="data-field">', $object->objectversion->Title, '</div>';
+		echo '</div>';
+	foreach($object->getTypesData() as $typesdata)
+	{
+		$blockclass = ['mb-3'];
+		$labelclass = ['form-label'];
+		if( $typesdata->Options )
+		{
+			$options = json_decode($typesdata->Options);
+			if( isset($options->block->class) )
+			{
+				$blockclass[] = $options->block->class;
+			}
+			if( isset($options->label->class) )
+			{
+				$labelclass[] = $options->label->class;
+			}
+		}
+		echo '<div class="', implode(' ', $blockclass), '">';
+		echo '<label for="data_', $typesdata->Id, '" class="', implode(' ', $labelclass), '">', $typesdata->Title, '</label>';
+		echo $typesdata->renderView($web, $object);
+		echo '</div>';
+	}
+?>
+</div>
+</div>
+<?php
+}
+?>
+</form>

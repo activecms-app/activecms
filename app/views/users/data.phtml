@@ -1,0 +1,66 @@
+<script>
+function confirmDelete()
+{
+	if( window.confirm("¿Seguro quiere eliminar el usuario <?=$user->getDisplayName();?>?"))
+	{
+		return true;
+	}
+	return false;
+}
+</script>
+<div class="container_fluid">
+	<div class="row p-3 page-header">
+		<div class="col-12">
+			<div class="actions float-end">
+				<a href="<?=$url->get('/users/edit/') . $user->Id;?>" class="btn btn-sm btn-primary"><i class="far fa-edit"></i> Editar</a>
+				<?php if($user->UserStatus == 'active'):?>
+				<a href="<?=$url->get('/users/disable/') . $user->Id;?>" class="btn btn-sm btn-primary">Inhabilitar</a>
+				<?php elseif($user->UserStatus == 'disabled'):?>
+				<a href="<?=$url->get('/users/active/') . $user->Id;?>" class="btn btn-sm btn-primary">Habilitar</a>
+				<?php endif;?>
+				<a href="<?=$url->get('/users/delete/') . $user->Id;?>" class="btn btn-sm btn-danger" onclick="return confirmDelete();"><i class="fas fa-trash-alt"></i> Eliminar</a>
+			</div>
+			<nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+				<ol class="breadcrumb mb-3 py-1">
+					<li class="breadcrumb-item"><small><a href="<?=$url->get('/')?>">Inicio</a></small></li>
+					<li class="breadcrumb-item active" aria-current="page"><small>Configuración</small></li>
+					<li class="breadcrumb-item active" aria-current="page"><small><a href="<?=$url->get('/users/')?>">Usuarios</a></small></li>
+				</ol>
+			</nav>
+		</div>
+		<div class="col-12">
+			<img class="profile-image rounded-circle float-start me-2" src="https://i.pinimg.com/originals/64/78/b4/6478b40ee5f7f169b6d25f914ccfcac2.png" alt="...">
+			<div class="profile-name float-start">
+				<h2 class="mb-0"><?=$user->getDisplayName();?></h2>
+				<span><?=$user->getStatusName();?></span>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="container_fluid">
+	<div class="row content p-3">
+		<div class="col">
+			<div class="card-body">
+				<fieldset>
+
+					<dl class="row">
+						<dt class="col-sm-2">Nombre de usuario:</dt>
+						<dd class="col-sm-10"><?=$user->Username;?></dd>
+						
+						<dt class="col-sm-2">E-mail:</dt>
+						<dd class="col-sm-10"><?=$user->Email;?></dd>
+
+						<dt class="col-sm-2">Estado:</dt>
+						<dd class="col-sm-10"><?=$user->getStatusName();?></dd>
+
+						<dt class="col-sm-2">Último Acceso:</dt>
+						<dd class="col-sm-10"><?=$user->getLastAccess();?></dd>
+
+						<dt class="col-sm-2">Roles:</dt>
+						<dd class="col-sm-10"><?=$user->getRolesText(['order' => 'Name asc']);?></dd>
+					</dl>
+				</fieldset>
+			</div>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,59 @@
+<div class="container_fluid">
+	<div class="row p-3 page-header">
+		<div class="col-12">
+			<div class="actions float-end">
+				<a href="<?=$url->get('/webs/data/') . $web->Id;?>" class="btn btn-sm btn-primary"><i class="far fa-eye"></i> Ver</a>
+				<a href="<?=$url->get('/webs/delete/') . $web->Id;?>" class="btn btn-sm btn-danger"><i class="fas fa-trash-alt"></i> Eliminar</a>
+			</div>
+			<nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+				<ol class="breadcrumb mb-3 py-1">
+					<li class="breadcrumb-item"><small><a href="<?=$url->get('/')?>">Inicio</a></small></li>
+					<li class="breadcrumb-item active" aria-current="page"><small>Configuración</small></li>
+					<li class="breadcrumb-item active" aria-current="page"><small><a href="<?=$url->get('/webs/')?>">Webs</a></small></li>
+				</ol>
+			</nav>
+		</div>
+		<div class="col-12">
+			<div class="float-start">
+				<h2 class="mb-0"><?=$web->Name;?></h2>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="container_fluid">
+	<div class="row content p-3">
+		<form action="<?=$url->get('/webs/save/')?>" role="form" method="post">
+			<p><?php $this->flashSession->output(); ?></p>
+			<?php echo $form->render('Id');?>
+			<div class="mb-3">
+				<label for="name" class="form-label">Nombre</label>
+				<?php echo $form->render('Name', ['class' => 'form-control']);?>
+			</div>
+			<div class="mb-3">
+				<label for="name" class="form-label">Host</label>
+				<?php echo $form->render('Host', ['class' => 'form-control']);?>
+			</div>
+			<div class="mb-3">
+				<label for="name" class="form-label">Carpeta Inicial</label>
+				<?php echo $form->render('Objects_Id', ['class' => 'form-control']);?>
+			</div>
+			<div class="mb-3">
+				<label for="type" class="form-label">Tema</label>
+				<?=$this->tag->select(['Themes_Id', $themes, 'using' => ['Id', 'Title'], 'class' => 'form-select']);?>
+			</div>
+			<div class="row mb-3">
+				<div class="col">
+					<div class="form-check">
+						<?=$form->render('Published', ['class' => 'form-check-input']);?>
+						<label class="form-check-label" for="Published">Publicado</label>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col">
+					<button type="submit" name="publish" class="btn btn-primary">Guardar</button>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>

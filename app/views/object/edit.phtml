@@ -1,0 +1,278 @@
+<script>
+var rowForm = null;
+var rowModal = null;
+var rowFormAction = null;
+var tableId = 0;
+var tableRow = null;
+
+document.addEventListener('DOMContentLoaded', (event) => {
+	rowForm = document.getElementById('rowForm');
+	rowModal = new bootstrap.Modal(document.getElementById('rowModal'));
+	rowFormAction = document.getElementById('rowFormAction');
+
+	const references = document.getElementsByClassName('reference');
+	for( var i = 0; i < references.length; i++)
+	{
+		new ReferenceSelect(references[i]);
+	}
+
+	const mediafiles = document.getElementsByClassName('media');
+	for( var i = 0; i < mediafiles.length; i++)
+	{
+		id = mediafiles[i].getAttribute('name');
+		new MediaSelect( mediafiles[i].getAttribute('name').slice(5, -1), mediafiles[i], '<?=$url->get('/object/upload' . $urlpath)?>');
+	}
+
+	var texthtml = Array.prototype.slice.call(document.getElementsByClassName('formathtml'));
+	texthtml.forEach(function(el) {
+		CKEDITOR.replace(el, {removeButtons: 'Styles,About,Scayt', allowedContent: true});
+	});
+
+});
+
+function showRow(id, row)
+{
+	tableId = id;
+	tableRow = row;
+	rowFormAction.innerHTML = 'Actualizar';
+	data = new FormData(rowForm);
+	data.append('td', id);
+	var input = row.getElementsByTagName( 'input' );
+	for (var i = 0; i < input.length; i++ ) {
+		data.append(input[i].name.substr(0, input[i].name.length - 2), input[i].value);
+	}
+	fetch('<?=$url->get('/object/table' . $urlpath)?>', {
+		method: 'POST',
+		body: data
+	}).then(function (response) {
+		if( response.ok )
+		{
+			response.text().then(function (text) {
+				rowForm.innerHTML = text;
+				const references = rowForm.getElementsByClassName('reference');
+				for( var i = 0; i < references.length; i++)
+				{
+					new ReferenceSelect(references[i]);
+				}
+				const mediafiles = rowForm.getElementsByClassName('media');
+				for( var i = 0; i < mediafiles.length; i++)
+				{
+					new MediaSelect(mediafiles[i].getAttribute('name'), mediafiles[i], '<?=$url->get('/object/upload' . $urlpath)?>');
+				}
+				rowModal.show();
+			});
+		}
+	});
+}
+
+function addRow(id)
+{
+	tableId = id;
+	tableRow = null;
+	rowFormAction.innerHTML = 'Agregar';
+	fetch('<?=$url->get('/object/table' . $urlpath)?>?td=' + id).then(function(response) {
+		if( response.ok ) {
+			response.text().then(function (text) {
+				rowForm.innerHTML = text;
+				const references = rowForm.getElementsByClassName('reference');
+				for( var i = 0; i < references.length; i++)
+				{
+					new ReferenceSelect(references[i]);
+				}
+				const mediafiles = rowForm.getElementsByClassName('media');
+				for( var i = 0; i < mediafiles.length; i++)
+				{
+					new MediaSelect(mediafiles[i].getAttribute('name'), mediafiles[i], '<?=$url->get('/object/upload' . $urlpath)?>');
+				}
+				rowModal.show();
+			});
+		}
+	});
+}
+
+function removeRow(e)
+{
+	btn = e.target;
+	table = btn.parentNode.parentNode.parentNode.parentNode;
+	table.deleteRow(btn.parentNode.parentNode.rowIndex);
+	e.preventDefault();
+	e.stopImmediatePropagation()
+}
+
+function addRowData()
+{
+	fetch('<?=$url->get('/object/row' . $urlpath)?>', {
+		method: 'POST',
+		body: new FormData(rowForm),
+	}).then(function (response) {
+		if (response.ok) {
+			response.text().then(function (text) {
+				if( tableRow === null )
+				{
+					var rowParent = document.getElementById('tb_' + tableId);
+					rowParent.insertAdjacentHTML('beforeend', text);
+				}
+				else
+				{
+					tableRow.innerHTML = text;
+				}
+				rowModal.hide();
+			});
+		}
+	});
+}
+
+var drag_row;
+
+function dragstart(){
+	drag_row = event.target;
+}
+
+function dragover(){
+	var e = event;
+	e.preventDefault(); 
+
+	let children = Array.from(e.target.parentNode.parentNode.children);
+
+	if(children.indexOf(e.target.parentNode)>children.indexOf(drag_row))
+		e.target.parentNode.after(drag_row);
+	else
+		e.target.parentNode.before(drag_row);
+}
+
+</script>
+<form action="<?=$url->get('/object/save' . $urlpath)?>" role="form" method="post" enctype="multipart/form-data">
+<?php
+if( $object->hasTypesGroups() )
+{
+	echo '<div class="row tabs-header">';
+	echo '<div class="col-12 tabs">';
+	echo '<ul class="nav nav-tabs">';
+	$first = true;
+	foreach($object->getTypesGroups() as $typegroup)
+	{
+		echo '<li class="nav-item">';
+		echo '<a class="nav-link';
+		if( $first )
+		{
+			$first = false;
+			echo ' active';
+		}
+		echo '" data-bs-toggle="tab" href="#group_', $typegroup->Id, '">', $typegroup->Title, '</a></li>';
+	}
+	echo '</ul>';
+	echo '</div></div>';
+	echo '<div class="content p-3">';
+	echo '<div class="tab-content" id="dataTabs">';
+	$first = true;
+	foreach($object->getTypesGroups() as $typegroup)
+	{
+		echo '<div class="tab-pane';
+		if( $first ) echo ' active';
+		echo '" id="group_' . $typegroup->Id . '" role="tabpanel"><div class="row">';
+		if( $first )
+		{
+			$first = false;
+			echo '<div class="mb-3"><label for="Name" class="form-label">Título</label>';
+			echo $this->tag->textfield(['version[Title]', 'value' => $object->objectversion->Title, 'class' => 'form-control']);
+			echo '</div>';
+		}
+		//Display fields
+		if( $object->hasTypesData($typegroup->Id) )
+		{
+			foreach($object->getTypesData($typegroup->Id, 1) as $typesdata)
+			{
+				$blockclass = ['mb-3'];
+				$labelclass = ['form-label'];
+				if( $typesdata->Options )
+				{
+					$options = json_decode($typesdata->Options);
+					if( isset($options->block->class) )
+					{
+						$blockclass[] = $options->block->class;
+					}
+					if( isset($options->label->class) )
+					{
+						$labelclass[] = $options->label->class;
+					}
+				}
+				echo '<div class="', implode(' ', $blockclass), '">';
+				echo '<label for="data_', $typesdata->Id, '" class="', implode(' ', $labelclass), '">', $typesdata->Title, '</label>';
+				echo $typesdata->renderEdit($web, $object);
+				echo '</div>';
+			}
+		}
+		echo '</div></div>';
+	}
+	echo '</div></div>';
+}
+else
+{
+?>
+<div class="content p-3">
+	<div class="row">
+		<div class="mb-3">
+			<label for="Name" class="form-label">Título</label>
+			<?=$this->tag->textfield(['version[Title]', 'value' => $object->objectversion->Title, 'class' => 'form-control']);?>
+		</div>
+	<?php
+		foreach($object->getTypesData() as $typesdata)
+		{
+			$blockclass = ['mb-3'];
+			$labelclass = ['form-label'];
+			if( $typesdata->Options )
+			{
+				$options = json_decode($typesdata->Options);
+				if( isset($options->block->class) )
+				{
+					$blockclass[] = $options->block->class;
+				}
+				if( isset($options->label->class) )
+				{
+					$labelclass[] = $options->label->class;
+				}
+			}
+			echo '<div class="', implode(' ', $blockclass), '">';
+			echo '<label for="data_', $typesdata->Id, '" class="', implode(' ', $labelclass), '">', $typesdata->Title, '</label>';
+			echo $typesdata->renderEdit($web, $object);
+			echo '</div>';
+		}
+	?>
+	</div><!-- .row -->
+</div>
+<?php
+}
+?>
+<div class="container-fluid sticky-bottom save-footer d-flex">
+	<div class="row d-flex row-cols-lg-auto g-3 py-3 ms-lg-auto">
+		<!-- div class="col-12 ms-lg-auto">
+			<div class="form-check form-switch">
+				<input class="form-check-input" type="checkbox" role="switch" id="newversion" name="newversion">
+				<label class="form-check-label text-light" for="newversion">Nueva versión</label>
+			</div>
+		</div -->
+		<!-- div class="col-12 ms-lg-auto">
+			<input type="text" name="savecomment" class="form-control" id="comment" placeholder="ingrese comentarios" value="">
+		</div -->
+		<div class="col-12 ms-lg-auto">
+			<button type="submit" name="save" class="btn btn-primary">Guardar</button>
+		</div>
+	</div>
+</div>
+</form>
+<div class="modal" tabindex="-1" id="rowModal">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title"></h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body"><form id="rowForm"></form></div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+				<button type="button" class="btn btn-primary" onclick="addRowData()" id="rowFormAction">Agregar</button>
+			</div>
+		</div>
+	</div>
+</div>
+

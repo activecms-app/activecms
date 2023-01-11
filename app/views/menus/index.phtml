@@ -1,0 +1,43 @@
+<div class="container_fluid">
+	<div class="row p-3 page-header">
+		<div class="col-12">
+			<div class="actions float-end">
+				<a href="<?=$url->get('/menus/new')?>" class="btn btn-sm btn-primary">Nuevo</a>
+			</div>
+			<nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+				<ol class="breadcrumb mb-3 py-1">
+					<li class="breadcrumb-item"><small><a href="<?=$url->get('/')?>">Inicio</a></small></li>
+					<li class="breadcrumb-item active" aria-current="page"><small>Herramientas</small></li>
+					<li class="breadcrumb-item active" aria-current="page"><small><a href="<?=$url->get('/menus/')?>">Menus</a></small></li>
+				</ol>
+			</nav>
+		</div>
+		<div class="col-12">
+			<h2 class="mb-0">Menus</h2>
+		</div>
+	</div>
+</div>
+<div class="container_fluid">
+	<div class="row content p-3">
+		<div class="col">
+			<table class="table">
+				<thead>
+					<tr>
+						<th width="20%">Codigo</th>
+						<th width="80%">Título</th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php if( $menus ):?>
+						<?php foreach($menus as $menu):?>
+							<tr onclick="window.location.href = '<?=$url->get('/menus/data/' . $menu->Id);?>'">
+								<td><?=$menu->Code;?></td>
+								<td><?=$menu->Title;?></td>
+							</tr>
+						<?php endforeach;?>
+					<?php endif;?>
+				</tbody>
+			</thead>
+		</div>
+	</div>
+</div>

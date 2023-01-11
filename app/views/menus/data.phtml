@@ -1,0 +1,234 @@
+<script>
+function confirmDelete()
+{
+	if( window.confirm("¿Seguro quiere eliminar el menu <?=$menu->Title;?>?"))
+	{
+		return true;
+	}
+	return false;
+}
+</script>
+<div class="container_fluid">
+	<div class="row p-3 page-header">
+		<div class="col-12">
+			<div class="actions float-end">
+				<a href="<?=$url->get('/menus/edit/') . $menu->Id;?>" class="btn btn-sm btn-primary"><i class="far fa-edit"></i> Editar</a>
+				<a href="<?=$url->get('/menus/delete/') . $menu->Id;?>" class="btn btn-sm btn-danger" onclick="return confirmDelete();"><i class="fas fa-trash-alt"></i> Eliminar</a>
+			</div>
+			<nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+				<ol class="breadcrumb mb-3 py-1">
+					<li class="breadcrumb-item"><small><a href="<?=$url->get('/')?>">Inicio</a></small></li>
+					<li class="breadcrumb-item active" aria-current="page"><small>Configuración</small></li>
+					<li class="breadcrumb-item active" aria-current="page"><small><a href="<?=$url->get('/menus/')?>">Menus</a></small></li>
+				</ol>
+			</nav>
+		</div>
+		<div class="col-12">
+			<div class="profile-name float-start">
+				<h2 class="mb-0"><?=$menu->Title;?></h2>
+				<span><?=$menu->Code;?></span>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="container_fluid">
+	<div class="row content p-3">
+		<div class="col">
+			<table class="table">
+				<thead>
+					<tr>
+						<th width="30%">Título</th>
+						<th width="20%">Tipo</th>
+						<th width="40%">Destino</th>
+						<th width="10%">Estado</th>
+					</tr>
+				</thead>
+				<tbody>
+<?php
+$items = $menu->getItemsParent();
+if( $items )
+{
+	foreach($items as $item)
+	{
+?>
+							<tr>
+								<td><?=$item->Title;?></td>
+								<td><?=$item->ItemType;?></td>
+								<td></td>
+								<td><?=$item->ItemStatus;?></td>
+							</tr>
+<?php
+	}
+}
+?>
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<div class="row content p-3">
+		<div class="col">
+			<div class="row mb-3">
+				<div class="col text-end">
+					<a class="btn btn-primary" href="" data-bs-toggle="modal" data-bs-target="#newitemModal"><i class="fa-solid fa-plus me-2"></i>Nuevo</a>
+				</div>
+			</div>
+			<table class="table">
+				<thead>
+					<tr>
+						<th width="30%">Título</th>
+						<th width="20%">Tipo</th>
+						<th width="30%">Destino</th>
+						<th width="10%">Estado</th>
+						<th width="10%"></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td><strong>Menú 1</strong></td>
+						<td>tipo</td>
+						<td>destino</td>
+						<td>estado</td>
+						<td align="right">
+							<a class="mini-btn me-2" data-bs-toggle="modal" data-bs-target="#newitemModal" href=""><i class="fa-solid fa-pen-to-square"></i></a>
+							<i class="mini-btn fa-solid fa-grip-dots-vertical drag me-1"></i>
+						</td>
+					</tr>
+						<tr class="sub-tr sub-first">
+							<td><i class="fa-solid fa-l fa-2xs ms-1 me-1"></i> Sub-Menú 1</td>
+							<td>tipo</td>
+							<td>destino</td>
+							<td>estado</td>
+							<td align="right">
+								<a class="mini-btn me-2" data-bs-toggle="modal" data-bs-target="#newitemModal" href=""><i class="fa-solid fa-pen-to-square"></i></a>
+								<i class="mini-btn fa-solid fa-grip-dots-vertical drag me-1"></i>
+							</td>
+						</tr>
+						<tr class="sub-tr sub-last">
+							<td><i class="fa-solid fa-l fa-2xs ms-1 me-1"></i> Sub-Menú 2</td>
+							<td>tipo</td>
+							<td>destino</td>
+							<td>estado</td>
+							<td align="right">
+								<a class="mini-btn me-2" data-bs-toggle="modal" data-bs-target="#newitemModal" href=""><i class="fa-solid fa-pen-to-square"></i></a>
+								<i class="mini-btn fa-solid fa-grip-dots-vertical drag me-1"></i>
+							</td>
+						</tr>
+					<tr>
+						<td><strong>Menú 2</strong></td>
+						<td>tipo</td>
+						<td>destino</td>
+						<td>estado</td>
+						<td align="right">
+							<a class="mini-btn me-2" data-bs-toggle="modal" data-bs-target="#newitemModal" href=""><i class="fa-solid fa-pen-to-square"></i></a>
+							<i class="mini-btn fa-solid fa-grip-dots-vertical drag me-1"></i>
+						</td>
+					</tr>
+					<tr>
+						<td><strong>Menú 3</strong></td>
+						<td>tipo</td>
+						<td>destino</td>
+						<td>estado</td>
+						<td align="right">
+							<a class="mini-btn me-2" data-bs-toggle="modal" data-bs-target="#newitemModal" href=""><i class="fa-solid fa-pen-to-square"></i></a>
+							<i class="mini-btn fa-solid fa-grip-dots-vertical drag me-1"></i>
+						</td>
+					</tr>
+					<tr>
+						<td><strong>Menú 4</strong></td>
+						<td>tipo</td>
+						<td>destino</td>
+						<td>estado</td>
+						<td align="right">
+							<a class="mini-btn me-2" data-bs-toggle="modal" data-bs-target="#newitemModal" href=""><i class="fa-solid fa-pen-to-square"></i></a>
+							<i class="mini-btn fa-solid fa-grip-dots-vertical drag me-1"></i>
+						</td>
+					</tr>
+						<tr class="sub-tr sub-first">
+							<td><i class="fa-solid fa-l fa-2xs ms-1 me-1"></i> Sub-Menú 1</td>
+							<td>tipo</td>
+							<td>destino</td>
+							<td>estado</td>
+							<td align="right">
+								<a class="mini-btn me-2" data-bs-toggle="modal" data-bs-target="#newitemModal" href=""><i class="fa-solid fa-pen-to-square"></i></a>
+								<i class="mini-btn fa-solid fa-grip-dots-vertical drag me-1"></i>
+							</td>
+						</tr>
+						<tr class="sub-tr">
+							<td><i class="fa-solid fa-l fa-2xs ms-1 me-1"></i> Sub-Menú 2</td>
+							<td>tipo</td>
+							<td>destino</td>
+							<td>estado</td>
+							<td align="right">
+								<a class="mini-btn me-2" data-bs-toggle="modal" data-bs-target="#newitemModal" href=""><i class="fa-solid fa-pen-to-square"></i></a>
+								<i class="mini-btn fa-solid fa-grip-dots-vertical drag me-1"></i>
+							</td>
+						</tr>
+						<tr class="sub-tr">
+							<td><i class="fa-solid fa-l fa-2xs ms-1 me-1"></i> Sub-Menú 3</td>
+							<td>tipo</td>
+							<td>destino</td>
+							<td>estado</td>
+							<td align="right">
+								<a class="mini-btn me-2" data-bs-toggle="modal" data-bs-target="#newitemModal" href=""><i class="fa-solid fa-pen-to-square"></i></a>
+								<i class="mini-btn fa-solid fa-grip-dots-vertical drag me-1"></i>
+							</td>
+						</tr>
+						<tr class="sub-tr sub-last">
+							<td><i class="fa-solid fa-l fa-2xs ms-1 me-1"></i> Sub-Menú 4</td>
+							<td>tipo</td>
+							<td>destino</td>
+							<td>estado</td>
+							<td align="right">
+								<a class="mini-btn me-2" data-bs-toggle="modal" data-bs-target="#newitemModal" href=""><i class="fa-solid fa-pen-to-square"></i></a>
+								<i class="mini-btn fa-solid fa-grip-dots-vertical drag me-1"></i>
+							</td>
+						</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>	
+</div>
+<!-- New item Modal -->
+<div class="modal fade" id="newitemModal" tabindex="-1" aria-labelledby="newitemModal" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="newitemModal">Nuevo item</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+      	<div class="mb-3">
+      		<label class="form-label">Nombre</label>
+      		<input type="text" class="form-control" id="">
+      	</div>
+      	<div class="mb-3">
+      		<label class="form-label">Tipo</label>
+			<select class="form-select" aria-label="Default select example">
+				<option selected>Tipo</option>
+				<option value="1">One</option>
+				<option value="2">Two</option>
+				<option value="3">Three</option>
+			</select>
+		</div>
+      	<div class="mb-3">
+      		<label class="form-label">Destino</label>
+      		<input type="text" class="form-control" id="">
+      	</div>
+      	<div class="mb-3">
+      		<label class="form-label">Estado</label>
+			<select class="form-select" aria-label="Default select example">
+				<option selected>Estado</option>
+				<option value="1">One</option>
+				<option value="2">Two</option>
+				<option value="3">Three</option>
+			</select>
+		</div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary">Crear</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title><?=$this->tag->getTitle();?></title>
+	<!-- Behavioral Meta Data -->
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<!-- css -->
+	<link href="<?=$url->get("vendor/twbs/bootstrap/dist/css/bootstrap.min.css")?>" rel="stylesheet">
+	<script src="<?=$url->get("vendor/ckeditor/ckeditor/ckeditor.js")?>"></script>
+	<link rel="stylesheet/less" type="text/css" href="<?=$url->get("css/screen.less")?>" media="all" />
+	<!-- js -->
+	<script src="<?=$url->get("js/fontawesome-6.js")?>" ></script>
+	<script src="<?=$url->get("vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js")?>"></script>
+	<script src="<?=$url->get("js/reference.js")?>" ></script>
+	<script src="<?=$url->get("js/media.js")?>" ></script>
+	<script src="//cdn.jsdelivr.net/npm/less@3.13" ></script>
+<style type="text/css">
+	.to-show {
+		display: none;
+	}
+	.to-hover:hover > .to-show {
+		display: block; 
+	}
+</style>
+</head>
+<body>
+<header class="bg-dark">
+	<nav class="navbar navbar-expand-xl navbar-dark py-0">
+		<a class="navbar-brand ps-3" href="#"><img src="/active/images/active-logo.png" width="120" style="margin-top: -3px;"></a>
+		<div class="handler navbar-toggler me-3" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContentXL" aria-controls="navbarSupportedContentXL" aria-expanded="false" aria-label="Toggle navigation"><div class="hamburger-menu"></div>
+		</div>
+		<div class="collapse navbar-collapse" id="navbarSupportedContentXL">
+			<ul id="main-menu" class="navbar-nav me-auto px-3 px-xl-0">
+				<li class="nav-item active">
+					<a class="nav-link" href="<?=$url->get('/');?>">Inicio <span class="sr-only">(current)</span></a>
+				</li>
+				<li class="nav-item hover dropdown">
+					<a class="nav-link dropdown-toggle" href="#" id="navbarDropdownXL" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Contenido</a>
+					<div class="dropdown-menu shadow" aria-labelledby="navbarDropdownXL">
+						<?php if( count($webs) > 0 ):
+							foreach($webs as $w) {
+								echo '<a class="dropdown-item" href="', $url->get('object/list/' . $w->Objects_Id), '">', $w->Name, '</a>';
+							}
+							echo '<hr>';
+						else:?>
+						<a class="dropdown-item" href="<?=$url->get('/object/list/');?>">Páginas</a>
+						<?php endif;?>
+						<a class="dropdown-item" href="<?=$url->get('/media/index/');?>">Medios</a>
+						<a class="dropdown-item" href="<?=$url->get('/search/');?>">Buscar</a>
+					</div>
+				</li>
+				<li class="nav-item hover  dropdown">
+					<a class="nav-link dropdown-toggle" href="#" id="navbarDropdownXL" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					Herramientas</a>
+					<div class="dropdown-menu shadow" aria-labelledby="navbarDropdownXL">
+						<a class="dropdown-item" href="<?=$url->get('menus')?>">Menus</a>
+						<a class="dropdown-item" href="<?=$url->get('banners')?>">Banners</a>
+						<a class="dropdown-item" href="<?=$url->get('import')?>">Importar contenido</a>
+					</div>
+				</li>
+				<li class="nav-item hover dropdown">
+					<a class="nav-link dropdown-toggle" href="#" id="navbarDropdownXL" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Configuracion</a>
+					<div class="dropdown-menu shadow" aria-labelledby="navbarDropdownXL">
+						<a class="dropdown-item" href="<?=$url->get('/users/')?>">Usuarios</a>
+						<a class="dropdown-item" href="<?=$url->get('/roles/')?>">Roles</a>
+						<a class="dropdown-item" href="<?=$url->get('/types/')?>">Tipos</a>
+						<a class="dropdown-item" href="<?=$url->get('/webs/')?>">Webs</a>
+					</div>
+				</li>
+			</ul>
+			<ul id="menu-usuario" class="navbar-nav ms-auto">
+				<li class="nav-item">
+					<a href="<?=$url->get('/object/new/');?>" class="btn btn-sm btn-primary my-tooltip" data-placement="bottom" title="Nuevo"><i class="fas fa-plus"></i></a>
+				</li>
+				<li class="nav-item">
+					<div class="search-container">
+						<form action="<?=$url->get('/search');?>" method="get">
+							<input class="search expandright" id="searchright" type="search" name="q" placeholder="Escriba y presione ENTER">
+							<label class="btn btn-sm btn-primary searchbutton" for="searchright"><i class="fas fa-search"></i></label>
+						</form>
+					</div>
+				</li>
+				<li class="nav-item text-white px-3" style="line-height:40px">Medwave<!-- TODO:titulo del cliente--></li>
+				<li class="nav-item">
+					<button type="button" class="btn btn-sm btn-primary my-tooltip campana" data-placement="bottom" title="Notificaciones">
+						<div class="notificaciones px-1">0</div>
+						<i class="fas fa-bell"></i>
+					</button>
+				</li>
+				<li  class="nav-item grupo-trabajo">
+					<div class="dropdown">
+						<button class="btn btn-sm text-white dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						<i class="fas fa-user"></i>
+						</button>
+						<div class="dropdown-menu dropdown-menu-end dropdown-secondary shadow">
+							<a class="dropdown-item" href="<?=$url->get('/user/logout/');?>">Salir</a>
+						</div>
+					</div>
+				</li>
+			</ul>
+		</div>
+	</nav>
+</header><!-- fin header -->
+	<main class="h-100">
+		<?php $this->flash->output(); ?>
+		<?php echo $this->getContent();?>
+	</main>
+	<footer>
+		
+	</footer>
+</body>
+</html>

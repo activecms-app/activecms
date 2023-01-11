@@ -1,0 +1,57 @@
+<div class="container_fluid">
+	<div class="row p-3 page-header">
+		<div class="col-12">
+			<div class="actions float-end">
+				<?php if( $object->isFolder() ):?>
+				<a href="<?=$url->get('/object/new' . $urlpath)?>" class="btn btn-sm btn-primary"><i class="fas fa-plus"></i><div class="d-none d-lg-inline ms-1">Nuevo</div></a> 
+				<a href="<?=$url->get('/object/list' . $urlpath)?>" class="btn btn-sm btn-primary"><i class="fas fa-list"></i><div class="d-none d-lg-inline ms-1">Lista</div></a> 
+				<?php endif;?>
+				<a href="<?=$url->get('/object/data' . $urlpath)?>" class="btn btn-sm btn-primary"><i class="fas fa-file"></i><div class="d-none d-lg-inline ms-1">Ver</div></a> 
+				<a href="<?=$url->get('/object/publish' . $urlpath)?>" class="btn btn-sm btn-primary"><i class="fas fa-check"></i><div class="d-none d-lg-inline ms-1">Publicación</div></a> 
+				<a href="<?=$url->get('/object/edit' . $urlpath)?>" class="btn btn-sm btn-primary"><i class="far fa-edit"></i><div class="d-none d-lg-inline ms-1">Editar</div></a> 
+				<a href="<?=$url->get('/object/versions' . $urlpath)?>" class="btn btn-sm btn-primary"><i class="fas fa-code-branch"></i><div class="d-none d-lg-inline ms-1">Versiones</div></a> 
+				<a href="<?=$url->get('/object/preview' . $urlpath)?>" target="_blank" class="btn btn-sm btn-primary"><i class="far fa-eye"></i><div class="d-none d-lg-inline ms-1">Vista Previa</div></a> 
+				<?php if($object->Types_Id == 3):?><div class="dropdown" style="display: inline-block">
+					<a class="btn btn-sm btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Tools</a>
+					<ul class="dropdown-menu">
+						<li><a class="dropdown-item" href="<?=$url->get('/object/porticomw' . $urlpath)?>">Export to Portico</a></li>
+					</ul>
+				</div>
+				<?php endif;?>
+			</div>
+<?php if( count($path) > 1 ):?>
+			<nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+				<ol class="breadcrumb mb-3 py-1">
+<?php
+	$breadcrum_url = '';
+	for($i = 0; $i < count($path) - 1; $i++)
+	{
+		$breadcrum_url .= '/' . $path[$i]->Id;
+		echo '<li class="breadcrumb-item"><small><a href="', $url->get('object/list' . $breadcrum_url), '">', $path[$i]->getObjectVersion()->Title, '</a></small></li>';
+	}
+?>
+				</ol>
+			</nav>
+<?php endif;?>
+		</div>
+		<div class="col-12 title-header">
+			<div class="octagonWrap" style="width: 60px; height:60px; line-height: 17px;">
+				<div class="octagon text-center">
+					<div class="fill">
+						<i class="far fa-<?php if( $object->isFolder() ):?>folder<?php else:?>file<?php endif;?> fa-2x align-middle"></i>
+						<div class="status">
+							<div class="signal <?= $object->isPublished() ? 'published' : 'draft';?>"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="profile-name float-start d-inline">
+				<h2 class="mb-0 align-middle"><?=$object->objectversion->Title;?></h2>
+				<?php if( count($path) > 1 ):?><span><?=count($path) > 1 ? $object->Name : '';?></span><?php endif;?>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="container_fluid h-100">
+<?php echo $this->getContent();?>
+</div>

@@ -1,0 +1,48 @@
+<div class="content p-3">
+	<form action="<?=$url->get('/object/publishsave' . $urlpath)?>" role="form" method="post">
+	<div class="row mb-3">
+		<div class="col">
+			<label for="Name" class="form-label">Nombre</label>
+			<div class="input-group">
+				<span class="input-group-text" id="basic-addon3"><?php
+if( count($path) > 1 )
+{
+	for($i = 1; $i < count($path) - 1; $i++)
+	{
+		echo '/', $path[$i]->Name;
+	}
+}
+echo '/';
+?></span>
+				<?=$form->render('Name', ['class' => 'form-control']);?>
+				<span class="input-group-text" id="basic-addon2">.html</span>
+			</div>
+		</div>
+	</div>
+	<div class="row mb-3">
+		<div class="col-6">
+			<label for="DisplayBegin" class="form-label">Inicio Despliegue</label>
+			<?=$form->render('DisplayBegin', ['class' => 'form-control']);?>
+			<div id="displaybeginHelp" class="form-text">Vacío si no tiene límite de fecha.</div>
+		</div>
+		<div class="col-6">
+			<label for="DisplayEnd" class="form-label">Término Despliegue</label>
+			<?=$form->render('DisplayEnd', ['class' => 'form-control']);?>
+			<div id="displayendHelp" class="form-text">Vacío si no tiene límite de fecha.</div>
+		</div>
+	</div>
+	<div class="row mb-3">
+		<div class="col">
+			<div class="form-check">
+				<?=$form->render('Published', ['class' => 'form-check-input']);?>
+				<label class="form-check-label" for="Published">Publicado</label>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col">
+			<button type="submit" name="publish" class="btn btn-primary">Guardar</button>
+		</div>
+	</div>
+	</form>
+</div>

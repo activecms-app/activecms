@@ -1,0 +1,12 @@
+<?php
+$tabledata = TypesData::findFirst($td);
+$typesdatas = $object->getTypesDataTable($tabledata->Name);
+echo '<tr ondragstart="dragstart()"  ondragover="dragover()" onclick="showRow(', $tabledata->Id, ', this)" draggable="true"><td class="drag" style="cursor:move"><i class="fa-solid fa-ellipsis-vertical"></i></td>';
+foreach($typesdatas as $typesdata)
+{
+	$name = str_replace('.', '_', $typesdata->Name);
+	$data = isset($_REQUEST[$name]) ? $_REQUEST[$name] : '';
+	echo '<td><input type="hidden" name="data[', $typesdata->Id, '][]" value="', htmlspecialchars($data), '">', htmlspecialchars($data), '</td>';
+}
+echo '<td><button type="button" class="btn btn-primary" onclick="removeRow(this)">-</button></td></tr>';
+?>

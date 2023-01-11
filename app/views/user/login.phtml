@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title><?=$this->tag->getTitle();?></title>
+		<!-- Behavioral Meta Data -->
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<!-- css -->
+		<link rel="stylesheet" type="text/css" href="<?=$url->get("vendor/twbs/bootstrap/dist/css/bootstrap.min.css")?>" />
+		<link rel="stylesheet/less" type="text/css" href="<?=$url->get("css/screen.less")?>" media="all" />
+		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
+		<!-- js -->
+		<script type="text/javascript" src="<?=$url->get("vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js")?>"></script>
+		<script src="//cdn.jsdelivr.net/npm/less@3.13" ></script>
+	</head>
+	<body>
+		<section id="login" class="h-100"><!-- login -->
+			<div class="container-fluid h-100">
+				<div class="row justify-content-center h-100">
+					<div class="col position-relative">
+						<?php echo $this->flash->output() ?><?php echo $this->flashSession->output() ?>	
+						<div class="card card-login position-absolute top-50 start-50 translate-middle">
+							<div class="card-header p-4 text-center">
+								<img src="/active/images/active-logo.png" width="160">
+							</div>
+							<div class="card-body p-4 pt-0">
+							<?php echo $this->tag->form( array("user/login/submit", 'class' => '')); ?>
+									
+									<div class="mb-3 mt-3">
+										<label class="form-label">Usuario</label>
+										<?php echo $form->render('username', array('class' => 'form-control', 'placeholder' => 'Usuario')); ?>
+									</div>
+									<div class="mb-3">
+										<label class="form-label">Contraseña</label>
+										<?php echo $form->render('password', array('class' => 'form-control', 'placeholder' => 'Contraseña')); ?>
+									</div>
+		 							<div class="mb-4 w-100 float-start">
+										<div>
+											<div class="checkbox inverted float-start">
+												<label>
+													<?php echo $form->render('remember');?><span class="indicator"></span> Recordar en este equipo
+												</label>
+											</div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-12 form-group d-grid gap-2">
+											<?php echo $form->render('submit', array('class' => 'btn btn-primary btn-login', 'value' => 'Entrar')); ?>
+											<input type='hidden' name='<?= $this->security->getTokenKey() ?>' value='<?= $this->security->getToken() ?>'/>
+										</div>
+									</div>
+								<?= $this->tag->endForm() ?>
+							</div>
+							<div class="card-footer p-4 text-center">
+								<a href="<?=$url->get('/user/recover/');?>">¿Olvidaste tu contraseña?</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section><!-- fin login -->
+	</body>
+</html>

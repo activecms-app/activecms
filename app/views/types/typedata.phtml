@@ -1,0 +1,95 @@
+<div class="container_fluid">
+	<div class="row p-3 page-header">
+		<div class="col-12">
+			<div class="actions float-end">
+				<a href="<?=$url->get('/types/new')?>" class="btn btn-sm btn-primary">Nuevo</a>
+				<a href="<?=$url->get('/types/edit/') . $type->Id;?>" class="btn btn-sm btn-primary"><i class="far fa-edit"></i> Editar</a>
+				<a href="<?=$url->get('/types/delete/') . $type->Id;?>" class="btn btn-sm btn-danger"><i class="fas fa-trash-alt"></i> Eliminar</a>
+			</div>
+			<nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+				<ol class="breadcrumb mb-3 py-1">
+					<li class="breadcrumb-item"><small><a href="<?=$url->get('/')?>">Inicio</a></small></li>
+					<li class="breadcrumb-item active" aria-current="page"><small>Configuración</small></li>
+					<li class="breadcrumb-item active" aria-current="page"><small><a href="<?=$url->get('/types/')?>">Tipos de contenido</a></small></li>
+				</ol>
+			</nav>
+		</div>
+		<div class="col-12">
+			<div class="float-start">
+				<h2 class="mb-0"><?=$type->Name;?></h2>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="container_fluid">
+    <div class="row content p-3">
+        <div class="col">
+        	<form action="<?=$url->get('/types/typedata/'.$type->Id)?>" role="form" method="post">
+        		<h3>Campo: <?=isset($data->Id) ? "#".$data->Title : "[Nuevo]";?></h3>
+				<p><?php $this->flashSession->output(); ?></p>
+				<?php echo $form->render('Id');?>
+				<div class="row">
+					<div class="col">
+						<?php echo $this->tag->select(
+							    [
+									'TypesGroups_Id',
+									$groups,
+									'using'      => ['Id', 'Title'],
+									'value'      => isset($data->TypesGroups_Id) ? $data->TypesGroups_Id : '',
+									'class'      => 'form-select mb-3',
+									'useEmpty'   => true,
+									'emptyText'  => '[Grupo]',
+									'emptyValue' => null,
+							    ]
+							);
+						?>
+					</div>
+					<div class="col">
+						<?php echo $this->tag->select(
+							    [
+									'TypesElements_Code',
+									$elements,
+									'using'      => ['Code', 'Name'],
+									'value'      => isset($data->TypesElements_Code) ? $data->TypesElements_Code : '',
+									'class'      => 'form-select mb-3',
+									'useEmpty'   => true,
+									'emptyText'  => '[Tipo]',
+									'emptyValue' => null,
+									'disabled' 	 => isset($data->Id) ? true : null
+							    ]
+							);
+						?>
+					</div>
+				</div>
+				<div class="mb-3">
+					<label for="name" class="form-label">Nombre</label>
+					<?php echo $form->render('Name', ['class' => 'form-control']);?>
+				</div>
+				<div class="mb-3">
+					<label for="name" class="form-label">Título</label>
+					<?php echo $form->render('Title', ['class' => 'form-control']);?>
+				</div>
+				<div class="mb-3">
+					<label for="description" class="form-label">Descripción</label>
+					<?php echo $form->render('Description', ['id' => 'description', 'class' => 'form-control', 'rows' => '4']);?>
+				</div>
+				<?php if(isset($data->Id)):?>
+					<h4>Opciones</h4>
+					<?php echo $data->renderOptions();?>
+				<?php endif;?>
+				<!-- div class="mb-3">
+					<label for="description" class="form-label">Opciones</label>
+					<?php echo $form->render('Options', ['class' => 'form-control', 'rows' => '36']);?>
+				</div -->
+				<div class="row mt-3">
+					<div class="col">
+						<button type="submit" name="save" class="btn btn-primary">Guardar</button>
+						<?php if(isset($data->Id)):?>
+							<button type="submit" name="delete" class="btn btn-danger" onclick="return confirm('¿Seguro quiere eliminar el campo?');">Eliminar</button>
+						<?php endif;?>
+					</div>
+				</div>
+			</form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,6 @@
+{
+	"require": {
+		"twbs/bootstrap": "5.2.3",
+		"ckeditor/ckeditor": "4.*"
+	}
+}

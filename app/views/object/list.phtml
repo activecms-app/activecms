@@ -1,0 +1,58 @@
+<div class="row content p-3">
+	<div class="col">
+		<table class="table list">
+			<thead>
+				<tr>
+					<th width="25"></th>
+					<th>Título</th>
+					<th>Estado</th>
+					<th>Último Cambio</th>
+				</tr>
+			</thead>
+			<tbody>
+				<?php if( $folders ):?>
+					<?php foreach($folders as $folder):?>
+						<tr onclick="window.location.href = '<?=$url->get('object/list' . $folder->getPath($urlpath));?>'" style="cursor:pointer;">
+							<td align="center">
+								<div class="octagonWrap" style="width: 42px; height:42px; line-height: 17px;">
+									<div class="octagon text-center">
+										<div class="fill">
+											<i class="far fa-folder align-middle"></i>
+											<div class="status">
+												<div class="signal <?= $folder->isPublished() ? 'published' : 'draft';?>">
+											</div>
+										</div>
+									</div>
+								</div>
+							</td>
+							<td><?=$folder->getObjectVersion()->Title;?></td>
+							<td><?=$folder->isPublished() ? 'Publicado' : 'Borrador';?></td>
+							<td><?=App\Library\DateUtils::DateToHuman($folder->getLastChange())?><br><?=$folder->lastuser->getDisplayName()?></td>
+						</tr>
+					<?php endforeach;?>
+				<?php endif;?>
+				<?php if( $files ):?>
+					<?php foreach($files as $file):?>
+						<tr onclick="window.location.href = '<?=$url->get('object/data' . $file->getPath($urlpath));?>'" style="cursor:pointer;">
+							<td align="center">
+								<div class="octagonWrap" style="width: 42px; height:42px; line-height: 17px;">
+									<div class="octagon text-center">
+										<div class="fill">
+											<i class="far fa-file align-middle"></i>
+											<div class="status">
+												<div class="signal <?= $file->isPublished() ? 'published' : 'draft';?>">
+											</div>
+										</div>									
+									</div>
+								</div>
+							</td>
+							<td><?=$file->getObjectVersion()->Title;?></td>
+							<td><?=$file->isPublished() ? 'Publicado' : 'Borrador';?></td>
+							<td><?=App\Library\DateUtils::DateToHuman($file->getLastChange())?><br><?=$file->lastuser->getDisplayName()?></td>
+						</tr>
+					<?php endforeach;?>
+				<?php endif;?>
+			</tbody>
+		</thead>
+	</div>
+</div>

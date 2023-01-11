@@ -1,0 +1,56 @@
+<div class="container_fluid">
+	<div class="row p-3 page-header">
+		<div class="col-12">
+			<div class="actions float-end">
+				<a href="<?=$url->get('/object/list' . $urlpath)?>" class="btn btn-sm btn-primary">Volver</a>
+			</div>
+			<nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+				<ol class="breadcrumb mb-3 py-1">
+<?php
+$breadcrum_url = '';
+foreach($path as $object)
+{
+	$breadcrum_url .= '/' . $object->Id;
+	echo '<li class="breadcrumb-item"><small><a href="', $url->get('object/list' . $breadcrum_url), '">', $object->getObjectVersion()->Title, '</a></small></li>';
+}
+?>
+				</ol>
+			</nav>
+		</div>
+		<div class="col-12">
+			<h2 class="mb-0">Contenido</h2>
+		</div>
+	</div>
+</div>
+<div class="container_fluid">
+	<div class="row content p-3">
+		<form action="<?=$url->get('/object/create' . $urlpath)?>" role="form" method="post">
+			<p><?php $this->flash->output();?></p>
+			<div class="mb-3">
+				<label for="type" class="form-label">Tipo</label>
+				<?=$this->tag->select(['type', $types, 'using' => ['Id', 'Name'], 'class' => 'form-select']);?>
+			</div>
+			<div class="mb-3">
+				<label for="title" class="form-label">Título</label>
+				<?=$this->tag->textField(['title', 'class' => 'form-control']);?>
+			</div>
+			<div class="mb-3">
+				<label for="name" class="form-label">Nombre</label>
+				<div class="input-group mb-3">
+					<span class="input-group-text" id="basic-addon3"><?php
+if( count($path) > 1 )
+{
+	for($i = 1; $i < count($path); $i++)
+	{
+		echo '/', $path[$i]->Name;
+	}
+}
+echo '/';
+?></span>
+					<?=$this->tag->textField(['name', 'class' => 'form-control']);?>
+					<span class="input-group-text" id="basic-addon2">.html</span>
+			</div>
+			<button type="submit" name="create" class="btn btn-primary">Crear</button>
+		</form>
+	</div>
+</div>
