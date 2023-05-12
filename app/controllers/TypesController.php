@@ -37,30 +37,39 @@ class TypesController extends ControllerBase
 	public function dataAction($id = null)
 	{
 		if($id)
-        {
-            $type = \Types::findFirst($id);
-            if(!isset($type->Id))
-            {
-                $this->flashSession->error('Tipo no encontrado.');
-                $this->response->redirect($this->url->get('types'));
-            }
-        }
-        else
-        {
-            $this->flashSession->error('Debe especificar tipo.');
-            $this->response->redirect($this->url->get('types'));
-        }
-
-        $groups = \TypesGroups::find(
-        			[
-						'conditions' => 'Types_Id = :type:',
-						'bind'       => ['type' => $type->Id],
-						'order'      => 'Position asc',
-        			]
-        		);
+		{
+			$type = \Types::findFirst($id);
+			if(!isset($type->Id))
+			{
+				$this->flashSession->error('Tipo no encontrado.');
+				$this->response->redirect($this->url->get('types'));
+			}
+		}
+		else
+		{
+			$this->flashSession->error('Debe especificar tipo.');
+			$this->response->redirect($this->url->get('types'));
+		}
 
 		$this->view->type   = $type;
-		$this->view->groups = $groups;
+
+		$this->view->groups = \TypesGroups::find(
+			[
+				'conditions' => 'Types_Id = :type:',
+				'bind'       => ['type' => $type->Id],
+				'order'      => 'Position asc',
+			]
+		);
+
+		$this->view->typesdata = \TypesData::find(
+			[
+				'conditions' => "TypesGroups_Id is null and Name not like '%.%' and Types_Id = :type:",
+				'bind' => [
+					'type' => $type->Id
+				],
+				'order' => 'Position asc'
+			]
+		);
 	}
 
 	public function groupAction($id = null)

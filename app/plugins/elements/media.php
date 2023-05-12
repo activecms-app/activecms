@@ -121,10 +121,14 @@ class media
 
 	static public function toFront(\Webs $web, \Objects $object, $data, $container)
 	{
+		if( $data->ValueText == '' ) {
+			return '';
+		}
 		$mediaDir = $container->getConfig()->application->mediaDir;
 		if( substr($mediaDir, 0, -1) != '/' ) {
 			$mediaDir .= '/';
 		}
+
 		if( file_exists($mediaDir . $data->ValueText) ) {
 			$mediaUrl = $container->getConfig()->application->mediaUrl;
 			if( substr($mediaUrl, 0, -1) != '/' ) {

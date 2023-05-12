@@ -12,6 +12,13 @@ class Filters extends \Phalcon\Mvc\Model
 	public function initialize()
 	{
 		$this->setSource("Filters");
+		$this->hasOne(
+			"Filters_Id", 
+			Filters::class, 
+			"Id",
+			[
+				'alias' => 'parent'
+			]);
 	}
 
 	function getByKey($parent, $key) {
@@ -198,7 +205,11 @@ class Filters extends \Phalcon\Mvc\Model
 			$filter->Status = 'processing';
 			$filter->save();
 		} elseif( $filter->isValid() ) {
-			return $filter;
+			$parentDate = new DateTime($filter->parent->FilterDate);
+			$filterDate = new DateTime($filter->FilterDate);
+			if( $parentDate <= $filterDate ) {
+				return $filter;
+			}
 		}
 
 		$filter->erase();
@@ -515,6 +526,6 @@ class Filters extends \Phalcon\Mvc\Model
 	static function cleanAll() {
 		$container = DI::getDefault();
 		$manager = $container->getShared("modelsManager");
-		$manager->executeQuery("update Filters set Status = 'outdated'");
+		$manager->executeQuery("update Filters set Status = 'outdated' where Filters_Id is null");
 	}
 }

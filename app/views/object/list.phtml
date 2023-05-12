@@ -3,52 +3,81 @@
 		<table class="table list">
 			<thead>
 				<tr>
+					<th width="5"></th>
 					<th width="25"></th>
 					<th>Título</th>
 					<th>Estado</th>
+					<th>Tipo</th>
 					<th>Último Cambio</th>
+					<th width="5"></th>
 				</tr>
 			</thead>
 			<tbody>
 				<?php if( $folders ):?>
 					<?php foreach($folders as $folder):?>
 						<tr onclick="window.location.href = '<?=$url->get('object/list' . $folder->getPath($urlpath));?>'" style="cursor:pointer;">
+							<td><i class="fa-solid fa-grip-vertical ps-2"></i></td>
 							<td align="center">
-								<div class="octagonWrap" style="width: 42px; height:42px; line-height: 17px;">
-									<div class="octagon text-center">
-										<div class="fill">
+								<div style="width: 45px; height:42px; line-height: 17px;">
+									
+										<div class="fill text-center">
 											<i class="far fa-folder align-middle"></i>
 											<div class="status">
 												<div class="signal <?= $folder->isPublished() ? 'published' : 'draft';?>">
 											</div>
 										</div>
 									</div>
-								</div>
+								
 							</td>
 							<td><?=$folder->getObjectVersion()->Title;?></td>
 							<td><?=$folder->isPublished() ? 'Publicado' : 'Borrador';?></td>
+							<td>Tipo</td>
 							<td><?=App\Library\DateUtils::DateToHuman($folder->getLastChange())?><br><?=$folder->lastuser->getDisplayName()?></td>
+							<td>
+								<a class="px-2 me-2" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: inherit;">
+									<i class="fa-solid fa-ellipsis-vertical"></i>
+								</a>
+								<ul class="dropdown-menu">
+									<li><a class="dropdown-item" href="#">Editar</a></li>
+									<li><a class="dropdown-item" href="#">Vista previa</a></li>
+									<li><a class="dropdown-item" href="#">Mover al inicio</a></li>
+									<li><a class="dropdown-item" href="#">Mover al final</a></li>
+								</ul>
+							</td>
 						</tr>
 					<?php endforeach;?>
 				<?php endif;?>
 				<?php if( $files ):?>
 					<?php foreach($files as $file):?>
 						<tr onclick="window.location.href = '<?=$url->get('object/data' . $file->getPath($urlpath));?>'" style="cursor:pointer;">
+							<td><i class="fa-solid fa-grip-vertical ps-2"></i></td>
 							<td align="center">
-								<div class="octagonWrap" style="width: 42px; height:42px; line-height: 17px;">
-									<div class="octagon text-center">
-										<div class="fill">
+								<div style="width: 45px; height:42px; line-height: 17px;">
+									
+										<div class="fill text-center">
 											<i class="far fa-file align-middle"></i>
 											<div class="status">
 												<div class="signal <?= $file->isPublished() ? 'published' : 'draft';?>">
 											</div>
 										</div>									
-									</div>
+									
 								</div>
 							</td>
 							<td><?=$file->getObjectVersion()->Title;?></td>
 							<td><?=$file->isPublished() ? 'Publicado' : 'Borrador';?></td>
+							<td>Tipo</td>
 							<td><?=App\Library\DateUtils::DateToHuman($file->getLastChange())?><br><?=$file->lastuser->getDisplayName()?></td>
+							<td>
+								<a class="px-2 me-2" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: inherit;">
+									<i class="fa-solid fa-ellipsis-vertical"></i>
+								</a>
+								<ul class="dropdown-menu">
+									<li><a class="dropdown-item" href="#">Editar</a></li>
+									<li><a class="dropdown-item" href="#">Vista previa</a></li>
+									<li><a class="dropdown-item" href="#">Mover al inicio</a></li>
+									<li><a class="dropdown-item" href="#">Mover al final</a></li>
+								</ul>
+							</td>
 						</tr>
 					<?php endforeach;?>
 				<?php endif;?>

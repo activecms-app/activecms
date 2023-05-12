@@ -148,18 +148,17 @@ class Objects extends \Phalcon\Mvc\Model
 			'lastchange' => 'LastChange'
 		];
 
-		if( is_null($classtype) ) {
-			//TODO: implementar rescate de todos los objetos hijos
-		}
-
-		$bind = ['parent' => $this->Id, 'class' => $classtype];
+		$bind = ['parent' => $this->Id];
 		$sortDir = $sortAsc ? 'asc' : 'desc';
 		$phql = Objects::query()
 			->innerJoin('Objects_Parents', 'Objects_Parents.Objects_Id = Objects.Id')
 			->innerJoin('Types', 'Types.Id = Objects.Types_Id')
 			->where('Objects_Parents.Objects_Parent = :parent:')
-			->andwhere('Types.Class = :class:')
 			->andwhere('Objects.Deleted = \'no\'');
+		if( !is_null($classtype) ) {
+			$phql = $phql->andwhere('Types.Class = :class:');
+			$bind['class'] = $classtype;
+		}
 		if( $published ) {
 			$phql = $phql->andwhere("Published = 'yes'");
 		}
@@ -179,7 +178,7 @@ class Objects extends \Phalcon\Mvc\Model
 				->orderBy('ObjectsData.ValueText ' . $sortDir . ', ObjectsData.ValueNum ' . $sortDir . ', ObjectsData.ValueDate ' . $sortDir);
 		}
 		else {
-			$phql = $phql->orderBy('DisplayBegin ' . $sortDir);
+			$phql = $phql->orderBy('Objects_Parents.Position asc, DisplayBegin ' . $sortDir);
 		}
 
 		if( $limit ) {
@@ -215,13 +214,28 @@ class Objects extends \Phalcon\Mvc\Model
 	{
 		return $this->getChilds('file', $published, $offset, $limit, $sort, $sortAsc);
 	}
-	
+
+	public function getObjects($published = false, $offset = 0, $limit = 0, $sort = '', $sortAsc = null)
+	{
+		return $this->getChilds(null, $published, $offset, $limit, $sort, $sortAsc);
+	}
+
 	public function getPath($path = null)
 	{
 		if( !is_null($path) )
 		{
 			return $path . '/' . $this->Id;
 		}
+	}
+
+	public function hide()
+	{
+		$this->Deleted = 'yes';
+		if( $this->save() === false )
+		{
+			return false;
+		}
+		return true;
 	}
 
 	public function getPathByName()
@@ -552,6 +566,21 @@ class Objects extends \Phalcon\Mvc\Model
 			return $elementclass::toFront($web, $this, $data, $this->getDI());
 		}
 		return $elementclass::toFront($web, $this, $data, $this->getDI());
+	}
+
+	function addHistory(Users $user, $action, $comment = '')
+	{
+		$history = ObjectsHistory::createHistory($this->Id, $this->Version, $action, $user->Id, $comment);
+	}
+
+	static function findRecent(Users $user)
+	{
+		return Objects::query()->innerJoin('ObjectsHistory', 'ObjectsHistory.Objects_Id = Objects.Id and ObjectsHistory.Version = Objects.Version')
+		->where("ObjectsHistory.Users_Id = :user:")
+		->bind(['user' => $user->Id])
+		->orderBy('ObjectsHistory.ActionDate desc')
+		->limit(5)
+		->execute();
 	}
 
 	function log()

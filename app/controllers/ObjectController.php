@@ -115,6 +115,20 @@ class ObjectController extends ControllerBase
 		$object = end($this->path);
 		$this->view->object = $object;
 
+		if( $this->request->has('delete') ) {
+			if( $object->hide() ) {
+				$this->flashSession->success('Eliminado');
+				//Remove from urlpath string element to the right from last /
+				$parenturlpath = substr($this->urlpath, 0, strrpos($this->urlpath, '/'));
+				$this->response->redirect($this->url->get('/object/list' . $parenturlpath), true);
+				return;
+			}
+			$this->flash->error('No se pudo eliminar');
+			$this->dispatcher->forward([
+				'action' => 'publish'
+			]);
+			return;
+		}
 		$data = $this->request->getPost();
 		if( empty($data['DisplayBegin']) ) unset($data['DisplayBegin']);
 		if( empty($data['DisplayEnd']) ) unset($data['DisplayEnd']);
@@ -150,6 +164,11 @@ class ObjectController extends ControllerBase
 	}
 
 	public function editAction()
+	{
+		$this->view->object = end($this->path);
+	}
+
+	public function mediaAction()
 	{
 		$this->view->object = end($this->path);
 	}
@@ -222,6 +241,7 @@ class ObjectController extends ControllerBase
 			}
 		}
 
+		$object->addHistory($this->user, 'saved', '');
 		$this->flash->success('Actualizado');
 
 		Filters::cleanAll();

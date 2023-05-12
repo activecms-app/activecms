@@ -1,4 +1,112 @@
 <script>
+var referenceObject, itemModal;
+document.addEventListener('DOMContentLoaded', (event) => {
+	itemForm = document.getElementById('itemForm');
+	itemModal = new bootstrap.Modal(document.getElementById('itemModal'));
+	object = document.getElementById('object');
+	referenceObject = new ReferenceSelect(object);
+	const items = document.getElementsByClassName('item');
+	for( var i = 0; i < items.length; i++) {
+		items[i].addEventListener('click', function(){
+			//Load menu item data to the modal
+			document.getElementById('itemModalTitle').innerHTML = 'Menú "' + this.dataset.title + '"';
+			document.getElementById('num').value = this.dataset.num;
+			//Populate parents menu
+			parent = document.getElementById('parent');
+			const mainItems = document.getElementsByClassName('main-tr');
+			//Clear main items
+			for(i = parent.length; i >= 1; i--) {
+				parent.remove(i);
+			}
+			for( var i = 0; i < mainItems.length; i++) {
+				if( mainItems[i].dataset.num != this.dataset.num ) {
+					parent.options[parent.options.length] = new Option(mainItems[i].dataset.title, mainItems[i].dataset.num);
+				}
+			}
+			if( this.dataset.parent ) {
+				parent.value = this.dataset.parent;
+			}
+			document.getElementById('title').value = this.dataset.title;
+			itemTypeSelect = document.getElementById('itemtype');
+			itemTypeSelect.value = this.dataset.type;
+			modalChangeItemType(itemTypeSelect);
+			if( this.dataset.type == 'reference' ) {
+				referenceObject.selectItem(this.dataset.reference, this.dataset.referencetitle);
+			} else if( this.dataset.type == 'link' ) {
+				document.getElementById('link').value = this.dataset.link;
+			}
+			if( this.dataset.status == 'enabled' ) {
+				document.getElementById('itemstatus').checked = true;
+			} else {
+				document.getElementById('itemstatus').checked = false;
+			}
+			itemModal.show();
+		});
+	}
+
+	document.getElementById('itemtype').addEventListener('change',function(){
+		modalChangeItemType(this);
+	});
+
+});
+
+function modalChangeItemType(itemTypeSelect) {
+	if( itemTypeSelect.value == 'none' || itemTypeSelect.value == 'separator' ) {
+		document.getElementById('item_object').style.display = 'none';
+		document.getElementById('item_link').style.display = 'none';
+	} else if( itemTypeSelect.value == 'reference' ) {
+		document.getElementById('item_object').style.display = 'block';
+		document.getElementById('item_link').style.display = 'none';
+	} else if( itemTypeSelect.value == 'link' ) {
+		document.getElementById('item_link').style.display = 'block';
+		document.getElementById('item_object').style.display = 'none';
+	}
+}
+
+function newItem()
+{
+	//Load menu item data to the modal
+	document.getElementById('itemModalTitle').innerHTML = 'Menú nuevo';
+	document.getElementById('num').value = '';
+	//Populate parents menu
+	parent = document.getElementById('parent');
+	const mainItems = document.getElementsByClassName('main-tr');
+	//Clear main items
+	for(i = parent.length; i >= 1; i--) {
+		parent.remove(i);
+	}
+	for( var i = 0; i < mainItems.length; i++) {
+		parent.options[parent.options.length] = new Option(mainItems[i].dataset.title, mainItems[i].dataset.num);
+	}
+	document.getElementById('title').value = '';
+	itemTypeSelect = document.getElementById('itemtype');
+	itemTypeSelect.value = 'reference';
+	modalChangeItemType(itemTypeSelect);
+	referenceObject.reset();
+	document.getElementById('itemstatus').checked = true;
+	itemModal.show();
+}
+
+function saveItem()
+{
+	data = new FormData(itemForm);
+	if( data.has('status') ) {
+		data.append('ItemStatus', 'enabled');
+	} else {
+		data.append('ItemStatus', 'disabled');
+	}
+	fetch('<?=$url->get('/menus/saveItem')?>', {
+		method: 'POST',
+		body: data,
+	})
+	.then((response) => response.json())
+	.then((data) => {
+		item = document.getElementById('item_' + data.num);
+		item.querySelector('.title').innerHTML = data.title;
+		itemModal.hide();
+	});
+}
+
 function confirmDelete()
 {
 	if( window.confirm("¿Seguro quiere eliminar el menu <?=$menu->Title;?>?"))
@@ -7,11 +115,13 @@ function confirmDelete()
 	}
 	return false;
 }
+
 </script>
-<div class="container_fluid">
+<div class="container-fluid">
 	<div class="row p-3 page-header">
 		<div class="col-12">
 			<div class="actions float-end">
+				<a href="javascript:newItem()" class="btn btn-sm btn-primary"><i class="fa-solid fa-plus me-2"></i>Nuevo ítem</a>
 				<a href="<?=$url->get('/menus/edit/') . $menu->Id;?>" class="btn btn-sm btn-primary"><i class="far fa-edit"></i> Editar</a>
 				<a href="<?=$url->get('/menus/delete/') . $menu->Id;?>" class="btn btn-sm btn-danger" onclick="return confirmDelete();"><i class="fas fa-trash-alt"></i> Eliminar</a>
 			</div>
@@ -31,16 +141,17 @@ function confirmDelete()
 		</div>
 	</div>
 </div>
-<div class="container_fluid">
+<div class="container-fluid">
 	<div class="row content p-3">
 		<div class="col">
 			<table class="table">
 				<thead>
 					<tr>
-						<th width="30%">Título</th>
-						<th width="20%">Tipo</th>
-						<th width="40%">Destino</th>
-						<th width="10%">Estado</th>
+						<th>Título</th>
+						<th width="100">Tipo</th>
+						<th>Destino</th>
+						<th width="100">Estado</th>
+						<th width="30"></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -51,13 +162,27 @@ if( $items )
 	foreach($items as $item)
 	{
 ?>
-							<tr>
-								<td><?=$item->Title;?></td>
-								<td><?=$item->ItemType;?></td>
-								<td></td>
-								<td><?=$item->ItemStatus;?></td>
-							</tr>
+				<tr class="main-tr item" id="item_<?=$item->Num?>" data-num="<?=$item->Num?>" data-title="<?=$item->Title;?>" data-parent="" data-type="<?=$item->ItemType;?>" data-reference="<?=$item->Objects_Id;?>" data-referencetitle="<?=$item->getDestination();?>" data-link="<?=$item->Link;?>" data-status="<?=$item->ItemStatus;?>" style="cursor:default;">
+					<td class="title"><?=$item->Title;?></td>
+					<td><?=$item->ItemType;?></td>
+					<td><?=$item->getDestination();?></td>
+					<td><?=$item->ItemStatus;?></td>
+					<td class="drag" style="cursor:move"><i class="fa-solid fa-ellipsis-vertical"></i></td>
+				</tr>
 <?php
+		if( $item->hasChilds() ) {
+			foreach ($item->Items as $subitem) {
+				?>
+				<tr class="sub-tr item" id="item_<?=$subitem->Num?>" data-num="<?=$subitem->Num?>" data-parent="<?=$item->Num;?>" data-title="<?=$subitem->Title;?>" data-type="<?=$subitem->ItemType;?>" data-reference="<?=$subitem->Objects_Id;?>" data-referencetitle="<?=$subitem->getDestination();?>" data-link="<?=$subitem->Link;?>" data-status="<?=$subitem->ItemStatus;?>" style="cursor:default;">
+					<td><i class="fa-solid fa-l fa-2xs ms-1 me-1"></i><?=$subitem->Title;?></td>
+					<td><?=$subitem->ItemType;?></td>
+					<td><?=$subitem->getDestination();?></td>
+					<td><?=$subitem->ItemStatus;?></td>
+					<td class="drag" style="cursor:move"><i class="fa-solid fa-ellipsis-vertical"></i></td>
+				</tr>
+<?php
+			}
+		}
 	}
 }
 ?>
@@ -65,170 +190,59 @@ if( $items )
 			</table>
 		</div>
 	</div>
-
-	<div class="row content p-3">
-		<div class="col">
-			<div class="row mb-3">
-				<div class="col text-end">
-					<a class="btn btn-primary" href="" data-bs-toggle="modal" data-bs-target="#newitemModal"><i class="fa-solid fa-plus me-2"></i>Nuevo</a>
-				</div>
-			</div>
-			<table class="table">
-				<thead>
-					<tr>
-						<th width="30%">Título</th>
-						<th width="20%">Tipo</th>
-						<th width="30%">Destino</th>
-						<th width="10%">Estado</th>
-						<th width="10%"></th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<td><strong>Menú 1</strong></td>
-						<td>tipo</td>
-						<td>destino</td>
-						<td>estado</td>
-						<td align="right">
-							<a class="mini-btn me-2" data-bs-toggle="modal" data-bs-target="#newitemModal" href=""><i class="fa-solid fa-pen-to-square"></i></a>
-							<i class="mini-btn fa-solid fa-grip-dots-vertical drag me-1"></i>
-						</td>
-					</tr>
-						<tr class="sub-tr sub-first">
-							<td><i class="fa-solid fa-l fa-2xs ms-1 me-1"></i> Sub-Menú 1</td>
-							<td>tipo</td>
-							<td>destino</td>
-							<td>estado</td>
-							<td align="right">
-								<a class="mini-btn me-2" data-bs-toggle="modal" data-bs-target="#newitemModal" href=""><i class="fa-solid fa-pen-to-square"></i></a>
-								<i class="mini-btn fa-solid fa-grip-dots-vertical drag me-1"></i>
-							</td>
-						</tr>
-						<tr class="sub-tr sub-last">
-							<td><i class="fa-solid fa-l fa-2xs ms-1 me-1"></i> Sub-Menú 2</td>
-							<td>tipo</td>
-							<td>destino</td>
-							<td>estado</td>
-							<td align="right">
-								<a class="mini-btn me-2" data-bs-toggle="modal" data-bs-target="#newitemModal" href=""><i class="fa-solid fa-pen-to-square"></i></a>
-								<i class="mini-btn fa-solid fa-grip-dots-vertical drag me-1"></i>
-							</td>
-						</tr>
-					<tr>
-						<td><strong>Menú 2</strong></td>
-						<td>tipo</td>
-						<td>destino</td>
-						<td>estado</td>
-						<td align="right">
-							<a class="mini-btn me-2" data-bs-toggle="modal" data-bs-target="#newitemModal" href=""><i class="fa-solid fa-pen-to-square"></i></a>
-							<i class="mini-btn fa-solid fa-grip-dots-vertical drag me-1"></i>
-						</td>
-					</tr>
-					<tr>
-						<td><strong>Menú 3</strong></td>
-						<td>tipo</td>
-						<td>destino</td>
-						<td>estado</td>
-						<td align="right">
-							<a class="mini-btn me-2" data-bs-toggle="modal" data-bs-target="#newitemModal" href=""><i class="fa-solid fa-pen-to-square"></i></a>
-							<i class="mini-btn fa-solid fa-grip-dots-vertical drag me-1"></i>
-						</td>
-					</tr>
-					<tr>
-						<td><strong>Menú 4</strong></td>
-						<td>tipo</td>
-						<td>destino</td>
-						<td>estado</td>
-						<td align="right">
-							<a class="mini-btn me-2" data-bs-toggle="modal" data-bs-target="#newitemModal" href=""><i class="fa-solid fa-pen-to-square"></i></a>
-							<i class="mini-btn fa-solid fa-grip-dots-vertical drag me-1"></i>
-						</td>
-					</tr>
-						<tr class="sub-tr sub-first">
-							<td><i class="fa-solid fa-l fa-2xs ms-1 me-1"></i> Sub-Menú 1</td>
-							<td>tipo</td>
-							<td>destino</td>
-							<td>estado</td>
-							<td align="right">
-								<a class="mini-btn me-2" data-bs-toggle="modal" data-bs-target="#newitemModal" href=""><i class="fa-solid fa-pen-to-square"></i></a>
-								<i class="mini-btn fa-solid fa-grip-dots-vertical drag me-1"></i>
-							</td>
-						</tr>
-						<tr class="sub-tr">
-							<td><i class="fa-solid fa-l fa-2xs ms-1 me-1"></i> Sub-Menú 2</td>
-							<td>tipo</td>
-							<td>destino</td>
-							<td>estado</td>
-							<td align="right">
-								<a class="mini-btn me-2" data-bs-toggle="modal" data-bs-target="#newitemModal" href=""><i class="fa-solid fa-pen-to-square"></i></a>
-								<i class="mini-btn fa-solid fa-grip-dots-vertical drag me-1"></i>
-							</td>
-						</tr>
-						<tr class="sub-tr">
-							<td><i class="fa-solid fa-l fa-2xs ms-1 me-1"></i> Sub-Menú 3</td>
-							<td>tipo</td>
-							<td>destino</td>
-							<td>estado</td>
-							<td align="right">
-								<a class="mini-btn me-2" data-bs-toggle="modal" data-bs-target="#newitemModal" href=""><i class="fa-solid fa-pen-to-square"></i></a>
-								<i class="mini-btn fa-solid fa-grip-dots-vertical drag me-1"></i>
-							</td>
-						</tr>
-						<tr class="sub-tr sub-last">
-							<td><i class="fa-solid fa-l fa-2xs ms-1 me-1"></i> Sub-Menú 4</td>
-							<td>tipo</td>
-							<td>destino</td>
-							<td>estado</td>
-							<td align="right">
-								<a class="mini-btn me-2" data-bs-toggle="modal" data-bs-target="#newitemModal" href=""><i class="fa-solid fa-pen-to-square"></i></a>
-								<i class="mini-btn fa-solid fa-grip-dots-vertical drag me-1"></i>
-							</td>
-						</tr>
-				</tbody>
-			</table>
-		</div>
-	</div>	
+ 
 </div>
 <!-- New item Modal -->
-<div class="modal fade" id="newitemModal" tabindex="-1" aria-labelledby="newitemModal" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="newitemModal">Nuevo item</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-      	<div class="mb-3">
-      		<label class="form-label">Nombre</label>
-      		<input type="text" class="form-control" id="">
-      	</div>
-      	<div class="mb-3">
-      		<label class="form-label">Tipo</label>
-			<select class="form-select" aria-label="Default select example">
-				<option selected>Tipo</option>
-				<option value="1">One</option>
-				<option value="2">Two</option>
-				<option value="3">Three</option>
-			</select>
+<div class="modal fade" id="itemModal" tabindex="-1" aria-labelledby="itemModal" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="itemModalTitle">Nuevo menú</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<form id="itemForm">
+					<input type="hidden" name="Menus_Id" value="<?=$menu->Id;?>">
+					<input type="hidden" name="Num" id="num" value="">
+					<div class="mb-3">
+						<label class="form-label">Pertenece a:</label>
+						<select class="form-select" id="parent" name="MenusItems_Num" aria-label="item type">
+							<option value="">[Principal]</option>
+						</select>
+					</div>
+					<div class="mb-3">
+						<label class="form-label">Título</label>
+						<input type="text" class="form-control" id="title" name="Title">
+					</div>
+					<div class="mb-3">
+						<label class="form-label">Tipo</label>
+						<select class="form-select" id="itemtype" name="ItemType" aria-label="item type">
+							<option value="none">Sin enlace</option>
+							<option value="reference">Referencia</option>
+							<option value="link">Link externo</option>
+							<option value="separator">Separador</option>
+						</select>
+					</div>
+					<div class="mb-3" id="item_object" style="display: none;">
+						<label class="form-label">Destino referencia</label>
+						<input type="text" id="object" class="form-control" data-type="" data-class="" data-title="" placeholder="Buscar ficha contenido..." autocomplete="off" name="Objects_Id">
+					</div>
+					<div class="mb-3" id="item_link" style="display: none;">
+						<label class="form-label">Destino link</label>
+						<input type="text" class="form-control" id="link" name="Link">
+					</div>
+					<div class="mb-3">
+						<div class="form-check form-switch">
+							<input class="form-check-input" type="checkbox" role="switch" id="itemstatus" name="status">
+							<label class="form-check-label" for="itemstatus">Habilitado</label>
+						</div>
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+				<button type="button" class="btn btn-primary" onclick="saveItem()">Guardar</button>
+			</div>
 		</div>
-      	<div class="mb-3">
-      		<label class="form-label">Destino</label>
-      		<input type="text" class="form-control" id="">
-      	</div>
-      	<div class="mb-3">
-      		<label class="form-label">Estado</label>
-			<select class="form-select" aria-label="Default select example">
-				<option selected>Estado</option>
-				<option value="1">One</option>
-				<option value="2">Two</option>
-				<option value="3">Three</option>
-			</select>
-		</div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-primary">Crear</button>
-      </div>
-    </div>
-  </div>
+	</div>
 </div>

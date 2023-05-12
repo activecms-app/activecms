@@ -20,7 +20,7 @@ class Menus extends \Phalcon\Mvc\Model
 		$conditions = [];
 		if( is_null($parent_num) )
 		{
-			$conditions[] = 'MenusItems_Num is null';
+			$conditions[] = 'MenusItems_Num is null or MenusItems_Num = 0';
 		}
 		else
 		{
@@ -38,5 +38,16 @@ class Menus extends \Phalcon\Mvc\Model
 			'order' => 'Position'
 		]);
 
+	}
+
+	public function maxNum()
+	{
+		return MenusItems::maximum([
+			'column'=> 'Num',
+			'conditions' => "Menus_Id = :menu:",
+			'bind' => [
+				'menu' => $this->Id
+			]
+		]);
 	}
 }

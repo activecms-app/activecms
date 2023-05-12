@@ -47,11 +47,12 @@ function down(type, group, dt)
 }
 </script>
 
-<div class="container_fluid">
+<div class="container-fluid">
 	<div class="row p-3 page-header">
 		<div class="col-12">
 			<div class="actions float-end">
 				<a href="<?=$url->get('/types/typedata/') . $type->Id?>" class="btn btn-sm btn-primary">Nuevo Campo</a>
+				<a href="<?=$url->get('/types/group/') . $type->Id;?>" class="btn btn-sm btn-primary">Nuevo Grupo</a>
 				<a href="<?=$url->get('/types/new')?>" class="btn btn-sm btn-primary">Nuevo</a>
 				<a href="<?=$url->get('/types/edit/') . $type->Id;?>" class="btn btn-sm btn-primary"><i class="far fa-edit"></i> Editar</a>
 				<a href="<?=$url->get('/types/delete/') . $type->Id;?>" class="btn btn-sm btn-danger"><i class="fas fa-trash-alt"></i> Eliminar</a>
@@ -71,85 +72,138 @@ function down(type, group, dt)
 		</div>
 	</div>
 </div>
-<div class="container_fluid">
-    <div class="row content p-3">
-        <div class="col">
-<!--         	<div class="row">
-        		<div class="col">
-	        		<a href="" class="btn btn-sm btn-primary mb-3">Nuevo campo</a>
-	        		<a href="" class="btn btn-sm btn-primary mb-3">Eliminar campo</a>
-	        		<a href="" class="btn btn-sm btn-primary mb-3">Nuevo grupo</a>
-	        		<a href="" class="btn btn-sm btn-primary mb-3">Eliminar grupo</a>
-        		</div>
-        	</div>
- -->        
+<div class="container-fluid">
+	<div class="row content p-3">
+		<div class="col">
 
-<?php if(count($groups) > 0):?>
-	<ul class="nav nav-tabs">
-		<li class="d-flex me-3">
-			<a href="<?=$url->get('/types/group/') . $type->Id;?>" class="btn btn-sm btn-primary align-self-start"><i class="fas fa-plus"></i></a>
-		</li>
-		<?php $primero = true;?>
-		<?php foreach($groups as $group):?>
-			<li class="nav-item">
-				<button class="nav-link <?php if($primero):?>active<?php endif;?>" data-bs-toggle="tab" href="#group_<?=$group->Id;?>">
-					<?=$group->Title;?>
-					<a href="<?=$url->get('/types/group/') . $type->Id.'?g='.$group->Id;?>"><i class="far fa-edit mx-2 pe-2 border-right"></i></a>
-				</button>
-			</li>
-			<?php if($primero):?>
-				<?php $primero = false;?>
-			<?php endif;?>
-		<?php endforeach;?>
-	</ul>
-	<div class="tab-content" id="dataTabs">
-		<?php $primero = true;?>
-		<?php foreach($groups as $group):?>
- 			<div class="tab-pane bg-white <?php if($primero):?>active<?php endif;?>" id="group_<?=$group->Id;?>">
- 				<?php if(count($group->getTypesData()) > 0):?>
- 					<table class="table">
-						<thead>
-							<tr>
-								<th width="30%">Tipo</th>
-								<th width="35%">Nombre</th>
-								<th width="35%">Título</th>
-								<th colspan="2"></th>
-							</tr>
-						</thead>
-						<tbody id="g-<?=$group->Id;?>">
-							<?php $n = 0;?>
-							<?php foreach($group->getTypesData() as $data):?>
-								<tr id="d-<?=$group->Id;?>-<?=$data->Id;?>" onclick="window.location.href = '<?=$url->get('/types/typedata/' . $type->Id . '?d=' . $data->Id);?>'">
-									<?php $n++;?>
-									<td><?=$data->getTypeElement()->Name;?></td>
-									<td><?=$data->Name;?></td>
-									<td><?=$data->Title;?></td>
-									<td>
-										<a href="javascript:void(0);" class="btn btn-sm btn-primary" onclick="event.stopPropagation(); up(<?=$type->Id;?>, <?=$group->Id;?>, <?=$data->Id;?>);"><i class="fas fa-angle-up"></i></a>
-									</td>
-									<td>
-										<a href="javascript:void(0);" class="btn btn-sm btn-primary" onclick="event.stopPropagation(); down(<?=$type->Id;?>, <?=$group->Id;?>, <?=$data->Id;?>)"><i class="fas fa-angle-down"></i></a>
-									</td>
-								</tr>
-							<?php endforeach;?>
-						</tbody>
-					</table> 
- 				<?php else:?>
- 					<p>Grupo no tiene campos asociados.</p>
- 				<?php endif;?>
- 			</div>
-			<?php if($primero):?>
-				<?php $primero = false;?>
-			<?php endif;?>
-		<?php endforeach;?>
-	</div>
-<?php else:?>
-	<ul class="nav nav-tabs">
-		<li class="d-flex me-3">
-			<a href="<?=$url->get('/types/group/') . $type->Id;?>" class="btn btn-sm btn-primary align-self-start"><i class="fas fa-plus"></i></a>
-		</li>
-	</ul>
+<?php if( count($groups) ):?>
+<ul class="nav nav-tabs">
+<?php if( count($typesdata) ):?>
+	<li class="nav-item">
+		<button class="nav-link active" data-bs-toggle="tab" href="#group_0">
+			[Sin grupo]
+		</button>
+	</li>
 <?php endif;?>
+<?php
+	$num = 0;
+	foreach($groups as $group):
+		$num++;
+?>
+	<li class="nav-item">
+		<button class="nav-link <?php if($num == 1 && count($typesdata) == 0):?>active<?php endif;?>" data-bs-toggle="tab" href="#group_<?=$group->Id;?>">
+			<?=$group->Title;?>
+			<a href="<?=$url->get('/types/group/') . $type->Id.'?g='.$group->Id;?>"><i class="far fa-edit mx-2 pe-2 border-right"></i></a>
+		</button>
+	</li>
+<?php endforeach;?>
+</ul>
+<?php endif;?>
+<div class="tab-content" id="dataTabs">
+<?php 
+if( count($typesdata) ):
+?>
+	<div class="tab-pane bg-white active" id="group_0">
+		<table class="table">
+		<thead>
+		<tr>
+			<th width="35%">Título</th>
+			<th width="35%">Nombre</th>
+			<th width="30%">Tipo</th>
+			<th colspan="2"></th>
+			</tr>
+		</thead>
+		<tbody id="g-0">
+<?php
+	foreach($typesdata as $typedata):
+?>
+		<tr id="d-0-<?=$typedata->Id;?>" onclick="window.location.href = '<?=$url->get('/types/typedata/' . $type->Id . '?d=' . $typedata->Id);?>'">
+			<td><?=$typedata->Title;?></td>
+			<td><?=$typedata->Name;?></td>
+			<td><?=$typedata->getTypeElement()->Name;?></td>
+			<td>
+				<a href="javascript:void(0);" class="btn btn-sm btn-primary" onclick="event.stopPropagation(); up(<?=$type->Id;?>, 0, <?=$typedata->Id;?>);"><i class="fas fa-angle-up"></i></a>
+			</td>
+			<td>
+				<a href="javascript:void(0);" class="btn btn-sm btn-primary" onclick="event.stopPropagation(); down(<?=$type->Id;?>, 0, <?=$typedata->Id;?>)"><i class="fas fa-angle-down"></i></a>
+			</td>
+		</tr>
+<?php
+		if( $typedata->TypesElements_Code == 'table'  ) {
+			$tableTypesData = $typedata->getTypesDataTable();
+			if( count($tableTypesData) ) {
+				foreach($tableTypesData as $typedata)
+				{
+?>
+					<tr class="sub-tr" id="d-0-<?=$typedata->Id;?>" onclick="window.location.href = '<?=$url->get('/types/typedata/' . $type->Id . '?d=' . $typedata->Id);?>'">
+						<td><i class="fa-solid fa-l fa-2xs ms-1 me-1"></i><?=$typedata->Title;?></td>
+						<td><i class="fa-solid fa-l fa-2xs ms-1 me-1"></i><?=substr($typedata->Name, strpos($typedata->Name, '.') + 1);?></td>
+						<td><?=$typedata->getTypeElement()->Name;?></td>
+						<td></td>
+						<td></td>
+					</tr>
+<?php
+				}
+			}
+		}
+	endforeach;
+?>
+		</tbody>
+		</table>
+	</div>
+<?php
+endif;
+if( count($groups) ):
+	$num = 0;
+	foreach($groups as $group):
+		$num++;
+?>
+	<div class="tab-pane bg-white <?php if($num == 1 && count($typesdata) == 0):?>active<?php endif;?>" id="group_<?=$group->Id;?>">
+<?php 
+		if(count($group->getTypesData()) > 0):
+?>
+		<table class="table">
+		<thead>
+		<tr>
+			<th width="35%">Título</th>
+			<th width="35%">Nombre</th>
+			<th width="30%">Tipo</th>
+			<th colspan="2"></th>
+		</tr>
+		</thead>
+		<tbody id="g-<?=$group->Id;?>">
+<?php
+			foreach($group->getTypesData() as $data):
+?>
+		<tr id="d-<?=$group->Id;?>-<?=$data->Id;?>" onclick="window.location.href = '<?=$url->get('/types/typedata/' . $type->Id . '?d=' . $data->Id);?>'">
+			<td><?=$data->Title;?></td>
+			<td><?=$data->Name;?></td>
+			<td><?=$data->getTypeElement()->Name;?></td>
+			<td>
+				<a href="javascript:void(0);" class="btn btn-sm btn-primary" onclick="event.stopPropagation(); up(<?=$type->Id;?>, <?=$group->Id;?>, <?=$data->Id;?>);"><i class="fas fa-angle-up"></i></a>
+			</td>
+			<td>
+				<a href="javascript:void(0);" class="btn btn-sm btn-primary" onclick="event.stopPropagation(); down(<?=$type->Id;?>, <?=$group->Id;?>, <?=$data->Id;?>)"><i class="fas fa-angle-down"></i></a>
+			</td>
+		</tr>
+<?php
+			endforeach;
+?>
+			</tbody>
+		</table> 
+<?php
+		else:
+?>
+		<p>Grupo no tiene campos asociados.</p>
+<?php
+		endif;
+?>
+	</div>
+<?php
+	endforeach;
+endif;
+?>
+</div>
 
 		</div>
 	</div>

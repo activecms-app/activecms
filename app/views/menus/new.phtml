@@ -1,0 +1,35 @@
+<div class="container-fluid">
+	<div class="row p-3 page-header">
+		<div class="col-12">
+			<div class="actions float-end">
+				<a href="<?=$url->get('/menus/new')?>" class="btn btn-sm btn-primary">Nuevo</a>
+			</div>
+			<nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+				<ol class="breadcrumb mb-3 py-1">
+					<li class="breadcrumb-item"><small><a href="<?=$url->get('/')?>">Inicio</a></small></li>
+					<li class="breadcrumb-item active" aria-current="page"><small>Herramientas</small></li>
+					<li class="breadcrumb-item active" aria-current="page"><small><a href="<?=$url->get('/menus/')?>">Menus</a></small></li>
+				</ol>
+			</nav>
+		</div>
+		<div class="col-12">
+			<h2 class="mb-0">Menú Nuevo</h2>
+		</div>
+	</div>
+</div>
+<div class="container-fluid">
+	<div class="row content p-3">
+<form action="<?=$url->get('/menus/create/')?>" role="form" method="post">
+	<p><?php $this->flashSession->output();?></p>
+	<div class="mb-3">
+		<label for="Code" class="form-label">Código</label>
+		<?php echo $form->render('Code', ['class' => 'form-control']);?>
+	</div>
+	<div class="mb-3">
+		<label for="Title" class="form-label">Título</label>
+		<?php echo $form->render('Title', ['class' => 'form-control']);?>
+	</div>
+	<button type="submit" class="btn btn-primary">Crear</button>
+</form>
+	</div>
+</div>

@@ -9,7 +9,7 @@
 	<!-- css -->
 	<link href="<?=$url->get("vendor/twbs/bootstrap/dist/css/bootstrap.min.css")?>" rel="stylesheet">
 	<script src="<?=$url->get("vendor/ckeditor/ckeditor/ckeditor.js")?>"></script>
-	<link rel="stylesheet/less" type="text/css" href="<?=$url->get("css/screen.less")?>" media="all" />
+	<link rel="stylesheet/less" type="text/css" href="<?=$url->get("css/screen.css")?>" media="all" />
 	<!-- js -->
 	<script src="<?=$url->get("js/fontawesome-6.js")?>" ></script>
 	<script src="<?=$url->get("vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js")?>"></script>
@@ -82,7 +82,7 @@
 						</form>
 					</div>
 				</li>
-				<li class="nav-item text-white px-3" style="line-height:40px">Medwave<!-- TODO:titulo del cliente--></li>
+				<li class="nav-item text-white px-3" style="line-height:40px">Web<!-- TODO:titulo del cliente--></li>
 				<li class="nav-item">
 					<button type="button" class="btn btn-sm btn-primary my-tooltip campana" data-placement="bottom" title="Notificaciones">
 						<div class="notificaciones px-1">0</div>
@@ -104,7 +104,10 @@
 	</nav>
 </header><!-- fin header -->
 	<main class="h-100">
-		<?php $this->flash->output(); ?>
+		<?php
+		$this->flash->output();
+		$this->flashSession->output();
+		?>
 		<?php echo $this->getContent();?>
 	</main>
 	<footer>

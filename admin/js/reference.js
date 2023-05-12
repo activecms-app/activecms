@@ -65,11 +65,7 @@ class ReferenceSelect {
 		selectedClose.setAttribute('class', 'input-group-text');
 		selectedClose.innerHTML = '<i class="fa-solid fa-xmark"></i>';
 		selectedClose.addEventListener('click', (event) => {
-			this.selectedItem.style.display = 'none';
-			this.field.value = '';
-			this.searchInput.value = '';
-			this.searchInput.parentNode.style.display = 'flex';
-			this.searchInput.focus();
+			this.reset();
 		});
 		this.selectedItem.append(selectedClose);
 
@@ -90,6 +86,14 @@ class ReferenceSelect {
 		this.field.style.display = 'none';
 		this.field.parentElement.append(searchBox);
 
+	}
+
+	reset() {
+		this.selectedItem.style.display = 'none';
+		this.field.value = '';
+		this.searchInput.value = '';
+		this.searchInput.parentNode.style.display = 'flex';
+		this.searchInput.focus();
 	}
 
 	updateItems(data) {

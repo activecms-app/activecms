@@ -151,4 +151,18 @@ class TypesData extends \Phalcon\Mvc\Model
 		return \TypesElements::findFirst(["conditions" => "Code = '".$this->TypesElements_Code."'"]);
 	}
 
+	public function getTypesDataTable() {
+		if( $this->TypesElements_Code != 'table' )
+			return [];
+		return \TypesData::find(
+			[
+				'conditions' => "Name like :typeName: and Deleted = 'no'",
+				'bind' => [
+					'typeName' => $this->Name . '.%'
+				],
+				'order' => 'Position asc'
+			]
+		);
+	}
+
 }

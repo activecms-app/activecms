@@ -1,1 +1,125 @@
-<h2>Dashbord</h2>
+<div class="container-fluid">
+	<div class="row p-3">
+		<div class="col-12">
+			<h2 class="mb-0">Dashboard</h2>
+		</div>
+	</div>
+</div>
+
+<div class="container-fluid">
+	<div class="row content p-3">
+	<?php if( $recent_objects ):?>
+		<div class="col-xxl-6">
+			<h3>Últimas fichas revisadas</h3>
+			<table class="table list">
+				<thead>
+					<tr>
+						<th width="5%"></th>
+						<th width="35%">Título</th>
+						<th width="20%">Tipo</th>
+						<th width="15%">Estado</th>
+						<th width="25%">Último cambio</th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php foreach($recent_objects as $object):?>
+					<tr onclick="window.location.href = '<?=$url->get('object/data' . $object->getPath($urlpath));?>'" style="cursor:pointer;">
+						<td align="center">
+							<div style="width: 45px; height:42px; line-height: 17px;">
+								<div class="fill text-center">
+									<i class="far fa-file align-middle"></i>
+									<div class="status">
+										<div class="signal <?= $object->isPublished() ? 'published' : 'draft';?>">
+									</div>
+								</div>
+							</div>
+						</td>
+						<td><?=$object->getObjectVersion()->Title;?></td>
+						<td><?=$object->type->Name;?></td>
+						<td>Publicado</td>
+						<td><?=App\Library\DateUtils::DateToHuman($object->getLastChange())?><br><?=$object->lastuser->getDisplayName()?></td>
+					</tr>
+				<?php endforeach;?>
+				</tbody>
+			</table>
+		</div>
+	<?php endif;?>
+<!-- //TODO: implement recent messages 
+		<div class="col-xxl-6">
+			<h3>Mensajes</h3>
+			<table class="table list">
+				<thead>
+					<tr>
+						<th width="5%"></th>
+						<th width="40%">Ficha</th>
+						<th width="30%">Asunto</th>
+						<th width="25%">Enviado</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr style="cursor:pointer;">
+						<td align="center">
+							<div style="width: 45px; height:42px; line-height: 17px;">
+								<div class="fill text-center">
+									<i class="far fa-envelope align-middle"></i>
+								</div>
+							</div>
+						</td>
+						<td>Título de ficha</td>
+						<td>Nombre asunto</td>
+						<td>1 de Enero a las 21:48<br>Bastián Montes</td>
+					</tr>
+					<tr style="cursor:pointer;">
+						<td align="center">
+							<div style="width: 45px; height:42px; line-height: 17px;">
+								<div class="fill text-center">
+									<i class="far fa-envelope align-middle"></i>
+								</div>
+							</div>
+						</td>
+						<td>Fuga minus</td>
+						<td>Lorem, ipsum dolor</td>
+						<td>5 de Enero a las 13:14<br>Ricardo Haverbeck</td>
+					</tr>
+					<tr style="cursor:pointer;">
+						<td align="center">
+							<div style="width: 45px; height:42px; line-height: 17px;">
+								<div class="fill text-center">
+									<i class="far fa-envelope align-middle"></i>
+								</div>
+							</div>
+						</td>
+						<td>Sit amet consectetur adipisicing</td>
+						<td>Lorem ipsum dolor sit amet consectetur adipisicing elit. Repellat.</td>
+						<td>29 de Diciembre a las 21:48<br>Ricardo Haverbeck</td>
+					</tr>
+					<tr style="cursor:pointer;">
+						<td align="center">
+							<div style="width: 45px; height:42px; line-height: 17px;">
+								<div class="fill text-center">
+									<i class="far fa-envelope align-middle"></i>
+								</div>
+							</div>
+						</td>
+						<td>Lorem ipsum dolor sit amet consectetur.</td>
+						<td>Lorem ipsum dolor sit amet consectetur adipisicing elit. Fuga.</td>
+						<td>18 de Diciembre a las 9:50<br>Ricardo Haverbeck</td>
+					</tr>
+					<tr style="cursor:pointer;">
+						<td align="center">
+							<div style="width: 45px; height:42px; line-height: 17px;">
+								<div class="fill text-center">
+									<i class="far fa-envelope align-middle"></i>
+								</div>
+							</div>
+						</td>
+						<td>Dipisicing elit. Quam inventore</td>
+						<td>Lorem, ipsum.</td>
+						<td>10 de Dec a las 4:23<br>Bastián Montes</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+ -->
+	</div>
+</div>

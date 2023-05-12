@@ -1,4 +1,4 @@
-<div class="container_fluid">
+<div class="container-fluid">
 	<div class="row p-3 page-header">
 		<div class="col-12">
 			<div class="actions float-end">
@@ -19,105 +19,63 @@
 		</div>
 	</div>
 </div>
-<div class="container_fluid">
-	<div class="row m-0 content">
-		<div class="col-12 col-md-3 p-0">
-			<!-- div class="search">
-				<input type="text" placeholder="Buscar...">
-			</div -->
-			<ul class="folder-list ps-0">
-<?php
-if( $folders )
-{
-	foreach($folders as $folder)
-	{
-		echo '<li class="folder p-3">'; //active
-		echo '<a href="', $url->get('/media/index' . $folder->path), '">';
-		echo '<div class="profile-image rounded-circle"><i class="fas fa-folder align-middle"></i></div>';
-		echo '<h4>', $folder->name, '</h4>';
-		echo '<span>', $folder->files, ' elementos</span>';
-		echo '</a></li>';
-	}
-}
-?>
-			</ul>
-		</div>
-		<div class="col-12 col-md-9 p-0 bg-white">
-			<!-- div class="search">
-				<input type="text" placeholder="Buscar...">
-			</div -->
-			<div class="files-list row px-3 pb-3 pt-3">
-<?php
-if( $files )
-{
-	foreach($files as $file)
-	{
-		echo '<div class="col-12 col-md-4 col-lg-3 col-xl-2 mb-3"><div class="file-media text-center">';
-		echo '<img class="file-thumb mb-1" src="/medios', $file->path, '">';
-		echo '<small>', $file->name, '</small>';
-		echo '</div></div>';
-
-	}
-}
-?>
-<!--
-<div class="col-12 col-md-4 col-lg-3 col-xl-2 mb-3">
-					<div class="file-media text-center">
-						<img class="file-thumb mb-1" src="https://app.vinglet.com/default-image.png">
-						<small>Medio 0</small>
-					</div>
-				</div>
-				<div class="col-12 col-md-4 col-lg-3 col-xl-2 mb-3">
-					<div class="file-media text-center">
-						<img class="file-thumb mb-1" src="https://app.vinglet.com/default-image.png">
-						<small>Medio 1</small>
-					</div>
-				</div>
-				<div class="col-12 col-md-4 col-lg-3 col-xl-2 mb-3">
-					<div class="file-media text-center">
-						<img class="file-thumb mb-1" src="https://app.vinglet.com/default-image.png">
-						<small>Medio 2</small>
-					</div>
-				</div>
-				<div class="col-12 col-md-4 col-lg-3 col-xl-2 mb-3">
-					<div class="file-media text-center">
-						<img class="file-thumb mb-1" src="https://app.vinglet.com/default-image.png">
-						<small>Medio 3</small>
-					</div>
-				</div>
-				<div class="col-12 col-md-4 col-lg-3 col-xl-2 mb-3">
-					<div class="file-media text-center">
-						<img class="file-thumb mb-1" src="https://app.vinglet.com/default-image.png">
-						<small>Medio 4</small>
-					</div>
-				</div>
-				<div class="col-12 col-md-4 col-lg-3 col-xl-2 mb-3">
-					<div class="file-media text-center">
-						<img class="file-thumb mb-1" src="https://app.vinglet.com/default-image.png">
-						<small>Medio 5</small>
-					</div>
-				</div>
-				<div class="col-12 col-md-4 col-lg-3 col-xl-2 mb-3">
-					<div class="file-media text-center">
-						<img class="file-thumb mb-1" src="https://app.vinglet.com/default-image.png">
-						<small>Medio 6</small>
-					</div>
+<div class="container-fluid">
+	<div class="row content">
+		<div class="col-12">
+		<div class="p-3 media-route">
+				<label class="form-label mb-1">Ruta:</label>
+				<div class="input-group">
+					<input class="form-control" type="text" placeholder="Ruta" value="/active/media/index/">
+					<label class="input-group-text" for="inputGroupFile01"><i class="fa-solid fa-arrow-left-to-line"></i></label>
+					<label class="input-group-text" for="inputGroupFile01"><i class="fa-solid fa-arrow-up-from-bracket"></i></label>
 				</div>
 			</div>
-			<nav aria-label="Page navigation example">
-				<ul class="pagination justify-content-center">
-					<li class="page-item disabled">
-						<a class="page-link" href="#" tabindex="-1" aria-disabled="true">Anterior</a>
-					</li>
-					<li class="page-item active"><a class="page-link" href="#">1</a></li>
-					<li class="page-item"><a class="page-link" href="#">2</a></li>
-					<li class="page-item"><a class="page-link" href="#">3</a></li>
-					<li class="page-item">
-						<a class="page-link" href="#">Siguiente</a>
-					</li>
-				</ul>
-			</nav>
--->
+		</div>
+		<div class="col-12 col-md-6 col-lg-4 p-0">
+			
+			
+			
+
+			<ul class="folder-list ps-0">
+				<?php
+				if( $folders )
+				{
+					foreach($folders as $folder)
+					{
+						echo '<li class="folder p-3">'; //active
+						echo '<a class="d-flex align-items-center" href="', $url->get('/media/index' . $folder->path), '">';
+						echo '<div class="profile-image"><i class="fas fa-folder align-middle"></i></div>';
+						echo '<div><h4>', $folder->name, '</h4>';
+						echo '<span>', $folder->files, ' elementos</span></div>';
+						echo '</a></li>';
+					}
+				}
+				?>
+			</ul>
+		</div>
+		<div class="col-12 col-md-6 col-lg-8 p-3 bg-white">
+			<!-- div class="search">
+				<input type="text" placeholder="Buscar...">
+			</div -->
+			<div class="files-list row p-3'">
+				<?php
+				if( $files )
+				{
+					foreach($files as $file)
+					{
+						echo '<div class="col-6 col-sm-4 col-md-6 col-lg-3 col-xxl-2 mb-3"><div class="file-media text-center">';
+						echo '<img class="file-thumb mb-1" src="/medios', $file->path, '">';
+						echo '<small>', $file->name, '</small>';
+						echo '</div></div>';
+
+					}
+				}
+				else {
+					echo '<p>No hay archivos de medios en este directorio.</p>';
+				}
+				?>
+				
+
 		</div>
 	</div>
 </div>
