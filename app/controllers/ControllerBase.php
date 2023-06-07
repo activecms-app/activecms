@@ -7,13 +7,16 @@ class ControllerBase extends Controller
 	public $user = null;
 	public $web = null;
 
+	public function beforeExecuteRoute(Phalcon\Mvc\Dispatcher $dispatcher)
+	{
+		if( !$this->isLoggedIn() ) {
+			$this->response->redirect('user/login');
+			return false;
+		}
+	}
+
 	public function initialize()
 	{
-		if( !$this->isLoggedIn() )
-		{
-			$this->response->redirect('user/login');
-			return;
-		}
 		$this->view->user = $this->user;
 		$this->view->url = $this->url;
 		$this->view->webs = Webs::find();
