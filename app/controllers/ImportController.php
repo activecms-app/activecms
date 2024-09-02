@@ -85,6 +85,7 @@ class ImportController extends ControllerBase
 		$format = $this->request->get('format', 'string');
 
 		$pluginname = substr($format, 0, strpos($format, '-',0));
+
 		$plugin = Plugins::findFirst(
 			[
 				'conditions' => "Code = :code:",

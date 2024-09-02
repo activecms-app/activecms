@@ -3,8 +3,13 @@
 class Types extends \Phalcon\Mvc\Model
 {
 	static $classes = array(
-		'file'   => 'Ficha',
-		'folder' => 'Carpeta'
+		'folder' => 'Carpeta',
+		'file'   => 'Ficha'
+	);
+
+	static $type_status = array(
+		'active' => 'Habilitado',
+		'disabled' => 'Inhabilitado'
 	);
 
 	public function initialize()

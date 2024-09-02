@@ -1,5 +1,4 @@
 <?php
-use Phalcon\Mvc\Controller;
 
 class IndexController extends ControllerBase
 {
@@ -10,4 +9,3 @@ class IndexController extends ControllerBase
 	}
 
 }
-

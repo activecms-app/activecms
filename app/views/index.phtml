@@ -16,14 +16,14 @@
 	<script src="<?=$url->get("js/reference.js")?>" ></script>
 	<script src="<?=$url->get("js/media.js")?>" ></script>
 	<script src="//cdn.jsdelivr.net/npm/less@3.13" ></script>
-<style type="text/css">
-	.to-show {
-		display: none;
-	}
-	.to-hover:hover > .to-show {
-		display: block; 
-	}
-</style>
+	<style type="text/css">
+		.to-show {
+			display: none;
+		}
+		.to-hover:hover > .to-show {
+			display: block; 
+		}
+	</style>
 </head>
 <body>
 <header class="bg-dark">
@@ -58,6 +58,8 @@
 						<a class="dropdown-item" href="<?=$url->get('menus')?>">Menus</a>
 						<a class="dropdown-item" href="<?=$url->get('banners')?>">Banners</a>
 						<a class="dropdown-item" href="<?=$url->get('import')?>">Importar contenido</a>
+						<a class="dropdown-item" href="<?=$url->get('tools/stats/')?>">Estadísticas</a>
+						<a class="dropdown-item" href="<?=$url->get('tools/comments/')?>">Comentarios</a>
 					</div>
 				</li>
 				<li class="nav-item hover dropdown">

@@ -1,9 +1,6 @@
 <?php
-use Phalcon\Http\Request;
-use Phalcon\Mvc\Controller;
-
+use App\Forms\TypesForm;
 use App\Forms\DataForm;
-use App\Forms\GroupsForm;
 
 class TypesController extends ControllerBase
 {
@@ -27,6 +24,11 @@ class TypesController extends ControllerBase
 
 		$this->view->classes = Types::$classes;
 		$this->view->total   = Types::getTotal(); //Todo pasar si se quiere los eliminados o no
+	}
+
+	public function newAction()
+	{
+		$this->view->form = new TypesForm(null);
 	}
 
 	public function editAction()

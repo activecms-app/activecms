@@ -1,0 +1,250 @@
+<form action="<?=$url->get('/object/save' . $urlpath)?>" role="form" method="post" enctype="multipart/form-data">
+
+
+<div class="container-fluid h-100">
+	<div class="content p-3">
+		<div class="row">
+		<div class="">Aca va un campo de medio.</div>
+		</div>
+		<div class="row">
+			<div class="mb-3">
+				<label class="form-label">Archivo de medios</label>
+				<div class="media-file">
+					<div class="media-menu d-flex justify-content-between align-items-center">
+						<div class="media-title">[Sin imagen]</div>
+						<div class="media-links d-flex gap-3">
+							<a href="#" data-bs-toggle="modal" data-bs-target="#media-modal"><i class="fa-regular fa-image"></i></a>
+							<a href="#" data-bs-toggle="modal" data-bs-target="#upload-modal"><i class="fa-solid fa-arrow-up-from-bracket"></i></a>
+							<a class="disabled" href="#"><i class="fa-solid fa-xmark"></i></a>
+						</div>
+					</div>
+					<div class="media-upload text-center p-3">
+						<a href="#" class="media-drag d-flex flex-column justify-content-center p-3">
+							<i class="fa-solid fa-circle-arrow-down mb-2"></i>
+							<p class="m-0">Arrastre el archivo hasta aquí</p>
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="mb-3">
+				<label class="form-label">Archivo de medios</label>
+				<div class="media-file">
+					<div class="media-menu d-flex justify-content-between align-items-center">
+						<div class="media-title">imagen.jpg</div>
+						<div class="media-links d-flex gap-3">
+							<a href="#"><i class="fa-regular fa-image"></i></a>
+							<a href="#"><i class="fa-solid fa-arrow-up-from-bracket"></i></a>
+							<a href="#"><i class="fa-solid fa-xmark"></i></a>
+						</div>
+					</div>
+					<div class="media-upload text-center p-3">
+						<img class="media-image" src="https://unsplash.it/600/400" alt="">
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="container-fluid sticky-bottom save-footer d-flex">
+	<div class="row d-flex row-cols-lg-auto g-3 py-3 ms-lg-auto">
+		<!-- div class="col-12 ms-lg-auto">
+			<div class="form-check form-switch">
+				<input class="form-check-input" type="checkbox" role="switch" id="newversion" name="newversion">
+				<label class="form-check-label text-light" for="newversion">Nueva versión</label>
+			</div>
+		</div -->
+		<!-- div class="col-12 ms-lg-auto">
+			<input type="text" name="savecomment" class="form-control" id="comment" placeholder="ingrese comentarios" value="">
+		</div -->
+		<div class="col-12 ms-lg-auto">
+			<button type="submit" name="save" class="btn btn-primary">Guardar</button>
+		</div>
+	</div>
+</div>
+</form>
+
+<!-- Galería -->
+<div class="modal fade" id="media-modal" tabindex="-1" aria-labelledby="media-modalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+		<ul class="nav nav-tabs">
+			<li class="nav-item">
+				<a class="nav-link active" aria-current="page" href="#">Galería de medios</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link" href="#">Subir archivos</a>
+			</li>
+		</ul>
+      <div class="modal-body p-3 bg-white">
+		<div class="row">
+			<div class="p-3 media-route">
+				<label class="form-label mb-1">Ruta:</label>
+				<div class="input-group">
+					<input class="form-control" type="text" placeholder="Ruta" value="/active/media/index/">
+					<label class="input-group-text" for="inputGroupFile01"><i class="fa-solid fa-arrow-left-to-line"></i></label>
+					<label class="input-group-text" for="inputGroupFile01"><i class="fa-solid fa-arrow-up-from-bracket"></i></label>
+				</div>
+			</div>
+		</div>
+
+		
+		<div class="col-12">
+			<ul class="media-folder-list row ps-0 m-0 mb-3">
+				<li class="folder col-6">
+					<a href="#" class="d-flex my-1 align-items-center">
+						<div class="profile-image"><i class="fa-solid fa-arrow-left-to-line"></i></div>
+						<p>Volver</p>
+					</a>
+				</li>
+				<li class="folder col-6">
+					<a href="#" class="d-flex pb-1 my-1 align-items-center gap-1">
+						<div class="profile-image"><i class="fas fa-folder align-middle"></i></div>
+						<p>nombre de carpeta largo</p>
+					</a>
+				</li>
+				<li class="folder col-6">
+					<a href="#" class="d-flex pb-1 my-1 align-items-center gap-1">
+						<div class="profile-image"><i class="fas fa-folder align-middle"></i></div>
+						<p>Lorem ipsum dolor sit </p>
+					</a>
+				</li>
+				<li class="folder col-6">
+					<a href="#" class="d-flex pb-1 my-1 align-items-center gap-1">
+						<div class="profile-image"><i class="fas fa-folder align-middle"></i></div>
+						<p>nombre</p>
+					</a>
+				</li>
+			</ul>
+		</div>
+
+		<div class="media-modal-container">
+			<div class="row g-2">
+				<div class="col-6 col-sm-4">
+					<img src="https://unsplash.it/500/400" alt="" class="img-fluid">
+					<a href="#"><i class="fa-solid fa-xmark"></i></a>
+				</div>
+				<div class="col-6 col-sm-4">
+					<img src="https://unsplash.it/500/401" alt="" class="img-fluid">
+					<a href="#"><i class="fa-solid fa-xmark"></i></a>
+				</div>
+				<div class="col-6 col-sm-4">
+					<img src="https://unsplash.it/501/401" alt="" class="img-fluid">
+					<a href="#"><i class="fa-solid fa-xmark"></i></a>
+				</div>
+				<div class="col-6 col-sm-4">
+					<img src="https://unsplash.it/501/400" alt="" class="img-fluid">
+				</div>
+				<div class="col-6 col-sm-4">
+					<img src="https://unsplash.it/499/400" alt="" class="img-fluid">
+				</div>
+				<div class="col-6 col-sm-4">
+					<img src="https://unsplash.it/500/399" alt="" class="img-fluid">
+				</div>
+				<div class="col-6 col-sm-4">
+					<img src="https://unsplash.it/499/401" alt="" class="img-fluid">
+				</div>
+				<div class="col-6 col-sm-4">
+					<img src="https://unsplash.it/600/400" alt="" class="img-fluid">
+				</div>
+				<div class="col-6 col-sm-4">
+					<img src="https://unsplash.it/300/400" alt="" class="img-fluid">
+				</div>
+				<div class="col-6 col-sm-4">
+					<img src="https://unsplash.it/200/400" alt="" class="img-fluid">
+				</div>
+				<div class="col-6 col-sm-4">
+					<img src="https://unsplash.it/544/400" alt="" class="img-fluid">
+				</div>
+				<div class="col-6 col-sm-4">
+					<img src="https://unsplash.it/200/450" alt="" class="img-fluid">
+				</div>
+				<div class="col-6 col-sm-4">
+					<img src="https://unsplash.it/600/400" alt="" class="img-fluid">
+				</div>
+				<div class="col-6 col-sm-4">
+					<img src="https://unsplash.it/400/400" alt="" class="img-fluid">
+				</div>
+				<div class="col-6 col-sm-4">
+					<img src="https://unsplash.it/400" alt="" class="img-fluid">
+				</div>
+				<div class="col-6 col-sm-4">
+					<img src="https://unsplash.it/600/400" alt="" class="img-fluid">
+				</div>
+				<div class="col-6 col-sm-4">
+					<img src="https://unsplash.it/400/400" alt="" class="img-fluid">
+				</div>
+				<div class="col-6 col-sm-4">
+					<img src="https://unsplash.it/400" alt="" class="img-fluid">
+				</div>
+				<div class="col-6 col-sm-4">
+					<img src="https://unsplash.it/600/400" alt="" class="img-fluid">
+				</div>
+				<div class="col-6 col-sm-4">
+					<img src="https://unsplash.it/400/400" alt="" class="img-fluid">
+				</div>
+				<div class="col-6 col-sm-4">
+					<img src="https://unsplash.it/400" alt="" class="img-fluid">
+				</div>
+				<div class="col-6 col-sm-4">
+					<img src="https://unsplash.it/600/400" alt="" class="img-fluid">
+				</div>
+				<div class="col-6 col-sm-4">
+					<img src="https://unsplash.it/400/400" alt="" class="img-fluid">
+				</div>
+				<div class="col-6 col-sm-4">
+					<img src="https://unsplash.it/400" alt="" class="img-fluid">
+				</div>
+				<div class="col-6 col-sm-4">
+					<img src="https://unsplash.it/600/400" alt="" class="img-fluid">
+				</div>
+				<div class="col-6 col-sm-4">
+					<img src="https://unsplash.it/400/400" alt="" class="img-fluid">
+				</div>
+				<div class="col-6 col-sm-4">
+					<img src="https://unsplash.it/400" alt="" class="img-fluid">
+				</div>
+				<div class="col-6 col-sm-4">
+					<img src="https://unsplash.it/600/400" alt="" class="img-fluid">
+				</div>
+				<div class="col-6 col-sm-4">
+					<img src="https://unsplash.it/400/400" alt="" class="img-fluid">
+				</div>
+				<div class="col-6 col-sm-4">
+					<img src="https://unsplash.it/400" alt="" class="img-fluid">
+				</div>
+			</div>
+		</div>
+      </div>
+      <div class="modal-footer bg-white">
+        <button type="button" class="btn btn-primary">Elegir medio</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Subir archivos -->
+<div class="modal fade" id="upload-modal" tabindex="-1" aria-labelledby="upload-modalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+		<ul class="nav nav-tabs">
+			<li class="nav-item">
+				<a class="nav-link " aria-current="page" href="#">Galería de medios</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link active" href="#">Subir archivos</a>
+			</li>
+		</ul>
+      <div class="modal-body p-3 bg-white">
+		<a href="#" class="upload-modal-container text-center p-3 d-flex flex-column justify-content-center">
+			<i class="fa-solid fa-circle-arrow-down mb-2"></i>
+			<p class="m-0">Arrastre archivos hasta aquí <br> o haga click para buscar</p>
+		</a>
+      </div>
+      <div class="modal-footer bg-white">
+        <button type="button" class="btn btn-primary">Subir archivos</button>
+      </div>
+    </div>
+  </div>
+</div>

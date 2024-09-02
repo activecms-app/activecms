@@ -2,23 +2,30 @@
 
 $loader = new \Phalcon\Loader();
 
-/**
- * We're a registering a set of directories taken from the configuration file
- */
 $loader->registerDirs(
-    [
-        $config->application->controllersDir,
-        $config->application->modelsDir
-    ]
+	[
+		$config->application->controllersDir,
+		$config->application->modelsDir
+	]
 );
 
-// Register some namespaces
 $loader->registerNamespaces(
-    [
-       'App\Forms'  => APP_PATH .'/forms/',
-	   'App\Library' => APP_PATH .'/library/',
-	   'App\Elements' => APP_PATH . '/plugins/elements/'
-    ]
+	[
+		'App\Forms'  => APP_PATH .'/forms/',
+		'App\Library' => APP_PATH .'/library/',
+		'App\Elements' => APP_PATH . '/plugins/elements/'
+	]
 );
+
+/*$loader->registerNamespaces(
+	[
+		'App\Core' => APP_PATH,
+		'App\Core\Controllers' => $config->application->controllersDir,
+		'App\Forms'  => APP_PATH .'/forms/',
+		'App\Library' => APP_PATH .'/library/',
+		'App\Elements' => APP_PATH . '/plugins/elements/',
+		'App\Tools\Stats' => APP_PATH . '/plugins/tools/stats/controllers',
+	]
+);*/
 
 $loader->register();

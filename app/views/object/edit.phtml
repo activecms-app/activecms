@@ -25,7 +25,12 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
 	var texthtml = Array.prototype.slice.call(document.getElementsByClassName('formathtml'));
 	texthtml.forEach(function(el) {
-		CKEDITOR.replace(el, {removeButtons: 'Styles,About,Scayt', allowedContent: true});
+		CKEDITOR.replace(el, {
+			removeButtons: 'Styles,About,Scayt',
+			allowedContent: true,
+			extraPlugins: 'colorbutton, justify',
+			
+		});
 	});
 
 });

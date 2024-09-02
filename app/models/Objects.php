@@ -191,7 +191,6 @@ class Objects extends \Phalcon\Mvc\Model
 		elseif( $offset ) {
 			$phql = $phql->limit(0, $offset);
 		}
-
 		return $phql->bind($bind)->execute();
 	}
 
@@ -218,6 +217,36 @@ class Objects extends \Phalcon\Mvc\Model
 	public function getObjects($published = false, $offset = 0, $limit = 0, $sort = '', $sortAsc = null)
 	{
 		return $this->getChilds(null, $published, $offset, $limit, $sort, $sortAsc);
+	}
+
+	public function countChilds($classtype = null, $published = false)
+	{
+		$bind = ['parent' => $this->Id];
+
+		$phql = "select count(*) count
+			from Objects
+			inner join Objects_Parents on Objects_Parents.Objects_Id = Objects.Id
+			inner join Types on Types.Id = Objects.Types_Id
+			where Objects_Parents.Objects_Parent = :parent
+			and Objects.Deleted = 'no'";
+		if( !is_null($classtype) ) {
+			$phql .= " and Types.Class = :class";
+			$bind['class'] = $classtype;
+		}
+		if( $published ) {
+			$phql .= " and Published = 'yes'";
+		}
+
+		$row = $this->getDI()->get('db')->fetchOne($phql, \Phalcon\Db\Enum::FETCH_OBJ, $bind);
+		if( $row ) {
+			return $row->count;
+		}
+		return 0;
+	}
+
+	public function countFiles($published = false)
+	{
+		return $this->countChilds('file', $published);
 	}
 
 	public function getPath($path = null)

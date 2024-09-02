@@ -230,13 +230,27 @@ class Filters extends \Phalcon\Mvc\Model
 				$sql .= "where O.Types_Id " . $comparation . " '" . $value . "' ";
 				$sql .= "and O.Deleted = 'no' and O.Published = 'yes' ";
 			}
-		} elseif( $field == 'displaybegin' )
-		{
-			if( $parent > 0 )
-			{
+		} elseif( $field == 'displaybegin' ) {
+			if( $parent > 0 ) {
 				$sql = "select distinct " . $filter->Id . ", O.Id, FO.Position ";
 				$sql .= "from Objects O , Filters_Objects FO ";
 				$sql .= "where O.DisplayBegin " . $comparation . " '" . $value . "' ";
+				$sql .= "and O.Deleted = 'no' and O.Published = 'yes' ";
+				$sql .= "and FO.Filters_Id = " . $parent . " ";
+				$sql .= "and O.Id = FO.Objects_Id";
+			} else {
+				$sql = "select distinct " . $filter->Id . ",  O.Id, 0 ";
+				$sql .= "from Objects O ";
+				$sql .= "where O.DisplayBegin " . $comparation . " '" . $value . "' ";
+				$sql .= "and O.Deleted = 'no' and O.Published = 'yes' ";
+			}
+		} elseif( $field == 'parent' ) {
+			if( $parent > 0 )
+			{
+				$sql = "select distinct " . $filter->Id . ", O.Id, FO.Position ";
+				$sql .= "from Objects O, Objects_Parents OP, Filters_Objects FO ";
+				$sql .= "where OP.Objects_Parent = " . $value . " ";
+				$sql .= "and O.Id = OP.Objects_Id ";
 				$sql .= "and O.Deleted = 'no' and O.Published = 'yes' ";
 				$sql .= "and FO.Filters_Id = " . $parent . " ";
 				$sql .= "and O.Id = FO.Objects_Id";
@@ -244,12 +258,12 @@ class Filters extends \Phalcon\Mvc\Model
 			else
 			{
 				$sql = "select distinct " . $filter->Id . ",  O.Id, 0 ";
-				$sql .= "from Objects O ";
-				$sql .= "where O.DisplayBegin " . $comparation . " '" . $value . "' ";
+				$sql .= "from Objects O, Objects_Parents OP ";
+				$sql .= "where OP.Objects_Parent = " . $value . " ";
+				$sql .= "and O.Id = OP.Objects_Id ";
 				$sql .= "and O.Deleted = 'no' and O.Published = 'yes' ";
 			}
-		} elseif( $field == 'subparent' )
-		{
+		} elseif( $field == 'subparent' ) {
 			//Search for parents
 			$subfolders = $filter->getSubFolders($value);
 			if( $parent > 0 )
@@ -295,97 +309,26 @@ class Filters extends \Phalcon\Mvc\Model
 				$sql .= "and O.Id = FO.Objects_Id) ";
 			}
 			$sql .= "where O.Deleted = 'no' and O.Published = 'yes' ";
-			$sql .= "and (OD.ValueText " . $comparation . " '" . $value . "' ";
-			$sql .= "or OD.ValueNum " . $comparation . " '" . $value . "' ";
-			$date = DateTime::createFromFormat('Y-m-d H:i:s', $value);
-			if( $date && $date->format('Y-m-d H:i:s') == $value ) {
-				$sql .= "or OD.ValueDate " . $comparation . " '" . $value . "' ";
-			}
-			$sql .= ")";
-/*			$sql .= "where (( TD.TypeElement in (1,2,3,5,6,8,9,101,102,103,104,105,106,108,109) ";
-			$sql .= "and OD.ValueText " . $comparation . " '" . $value . "') ";
-			$sql .= "or ( TD.TypeElement in (4,10,100,110) ";
-			$sql .= "and OD.ValueNum " + comparation + " " + Int2String(atol(value)) + ") ";
-			$sql .= "or ( TD.TypeElement in (7,107) ";
-			$sql .= "and OD.ValueDate " + comparation + " '" + value + "')) ";
-			$sql .= "and O.Deleted <> 1 and O.Published = 1 ";
-*/
-		}
-
-/*		if( empty($field) ) //Search in all content
-		{
-			if( atoi(parent) == 0 )
-			{
-				sql = "select distinct " + filter->getId() + ",  O.Id, 0 ";
-				sql += "from " + TABLE_PREFIX + "Objects O , " + TABLE_PREFIX + "ObjectsVersion OV ";
-				sql += "left join " + TABLE_PREFIX + "ObjectsData OD ";
-				sql += "on (OD.Objects_Id = OV.Objects_Id ";
-				sql += "and OD.ObjectsVersion_Version = OV.Version) ";
-				sql += "where OV.Objects_Id = O.Id ";
-				sql += "and OV.Version = O.Version ";
-				sql += "and (OV.Title " + comparation + " '" + value + "' ";
-				sql += "or OV.Content " + comparation + " '" + value + "' ";
-				sql += "or OD.ValueText " + comparation + " '" + value + "')";
-				sql += "and O.Deleted <> 1 and O.Published = 1 ";
-				//sql += "and (O.DisplayBegin <= now() or O.DisplayBegin is null ) ";
-				//sql += "and (O.DisplayEnd > " + CString(pDB->GetNowString()) + " or O.DisplayEnd is null ) ";
-			}
-			else
-			{
-				sql = "select distinct " + filter->getId() + ", O.Id, FO.Position ";
-				sql += "from " + TABLE_PREFIX + "Objects O, " + TABLE_PREFIX + "ObjectsVersion OV ";
-				sql += "left join " + TABLE_PREFIX + "ObjectsData OD ";
-				sql += "on (OD.Objects_Id = OV.Objects_Id ";
-				sql += "and OD.ObjectsVersion_Version = OV.Version) ";
-				sql += ", " + TABLE_PREFIX + "Filters_Objects FO ";
-				sql += "where OV.Objects_Id = O.Id ";
-				sql += "and OV.Version = O.Version ";
-				sql += "and (OV.Title " + comparation + " '" + value + "' ";
-				sql += "or OV.Content " + comparation + " '" + value + "' ";
-				sql += "or OD.ValueText " + comparation + " '" + value + "')";
-				sql += "and O.Deleted <> 1 and O.Published = 1 ";
-				//sql += "and (O.DisplayBegin <= " + CString(pDB->GetNowString()) + " or O.DisplayBegin is null ) ";
-				//sql += "and (O.DisplayEnd > " + CString(pDB->GetNowString()) + " or O.DisplayEnd is null ) ";
-				sql += "and FO.Filters_Id = " + parent + " ";
-				sql += "and O.Id = FO.Objects_Id";
+			$date = DateTime::createFromFormat('Y-m-d', $value);
+			if( $date && $date->format('Y-m-d') == $value ) {
+				$sql .= "and OD.ValueDate " . $comparation . " '" . $value . "' ";
+			} else {
+				$date = DateTime::createFromFormat('Y-m-d H:i:s', $value);
+				if( $date && $date->format('Y-m-d H:i:s') == $value ) {
+					$sql .= "and OD.ValueDate " . $comparation . " '" . $value . "' ";
+				} else {
+					$sql .= "and (OD.ValueText " . $comparation . " '" . $value . "' ";
+					$sql .= "or OD.ValueNum " . $comparation . " '" . $value . "' ";
+					$sql .= ")";
+				}
 			}
 		}
 
-
-
-		else if( field.Compare("parent") == 0 )
-		{
-			if( atoi(parent) == 0 )
-			{
-				sql = "select distinct " + filter->getId() + ",  O.Id, 0 ";
-				sql += "from " + TABLE_PREFIX + "Objects O, " + TABLE_PREFIX + "Objects_Parents OP ";
-				sql += "where OP.Objects_Parent " + comparation + " '" + value + "' ";
-				sql += "and O.Id = OP.Objects_Id ";
-				sql += "and O.Deleted <> 1 and O.Published = 1 ";
-				//sql += "and (O.DisplayBegin <= " + CString(pDB->GetNowString()) + " or O.DisplayBegin is null ) ";
-				//sql += "and (O.DisplayEnd > " + CString(pDB->GetNowString()) + " or O.DisplayEnd is null ) ";
-			}
-			else
-			{
-				sql = "select distinct " + filter->getId() + ", O.Id, FO.Position ";
-				sql += "from " + TABLE_PREFIX + "Objects O, " + TABLE_PREFIX + "Objects_Parents OP, " + TABLE_PREFIX + "Filters_Objects FO ";
-				sql += "where OP.Objects_Parent " + comparation + " '" + value + "' ";
-				sql += "and O.Id = OP.Objects_Id ";
-				sql += "and O.Deleted <> 1 and O.Published = 1 ";
-				//sql += "and (O.DisplayBegin <= " + CString(pDB->GetNowString()) + " or O.DisplayBegin is null ) ";
-				//sql += "and (O.DisplayEnd > " + CString(pDB->GetNowString()) + " or O.DisplayEnd is null ) ";
-				sql += "and FO.Filters_Id = " + parent + " ";
-				sql += "and O.Id = FO.Objects_Id";
-			}
-		}
-
-
-*/
 		if( empty($sql) )
 		{
 			return null;
 		}
-//echo $sql;
+//echo $sql, '<br>';
 		//Load objects to filter
 		$filter->getDi()->getShared('db')->execute("insert into Filters_Objects " . $sql);
 		//Get the total
