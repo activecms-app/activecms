@@ -5,9 +5,12 @@
  *
  */
 
+
 class Plugins extends \Phalcon\Mvc\Model
 {
-	var $main;
+	private $isloaded = false;
+	public $main = null;
+	protected $di;
 
 	public function initialize()
 	{
@@ -23,11 +26,31 @@ class Plugins extends \Phalcon\Mvc\Model
 			->execute();
 	}
 
-	function getMain() {
-		if( is_null($this->main) ) {
-			include_once($this->getDI()->getConfig()->application->pluginsDir . $this->Code . '.php');
-			$this->main = new $this->Code;
+	function load(\Phalcon\DI $di)
+	{
+		$file = $di->getConfig()->application->pluginsDir . strtolower($this->Code) . '/' . strtolower($this->Code) . '.php';
+		if( !file_exists($file) ) {
+			return false;
 		}
+		include_once($file);
+		$this->main = new $this->Code($di);
+		$this->isloaded = true;
+		return true;
+	}
+
+	function action($action, $params = []) {
+		if( is_null($this->main) ) {
+			return false;
+		}
+		if( $action != 'init' ) {
+			$action = 'action_' . $action;
+		}
+		if( method_exists($this->main, $action) ) {
+			return call_user_func_array([$this->main, $action], [0 => $params]);
+		}
+	}
+
+	function getMain() {
 		return $this->main;
 	}
 

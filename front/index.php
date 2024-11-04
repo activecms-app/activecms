@@ -1,13 +1,26 @@
 <?php
+
 use Phalcon\DI;
 use Phalcon\DI\FactoryDefault;
 use Phalcon\Mvc\View\Simple as View;
 use Phalcon\Mvc\View\Engine\Volt as VoltEngine;
+use Phalcon\Http\Response;
 use Phalcon\Http\Response\Cookies;
 use Phalcon\Http\Request;
+use Phalcon\Translate\InterpolatorFactory;
+use Phalcon\Translate\Adapter\Csv;
 
 define('BASE_PATH', dirname(__DIR__));
 define('APP_PATH', BASE_PATH . '/app');
+
+//Set cookie "_acms" with randow string length 64 characters with 5 years expiration
+$acms_cookie = '';
+if( !isset($_COOKIE['_acms']) ) {
+	$acms_cookie = bin2hex(random_bytes(32));
+	setcookie('_acms', $acms_cookie, time() + 86400 * 365 * 5, '/');
+} else {
+	$acms_cookie = $_COOKIE['_acms'];
+}
 
 $container = new FactoryDefault();
 
@@ -25,20 +38,20 @@ $loader->registerNamespaces(	[
 $loader->register();
 
 $container->setShared('db', function () {
-    $config = $this->getConfig();
+	$config = $this->getConfig();
 
-    $class = 'Phalcon\Db\Adapter\Pdo\\' . $config->database->adapter;
-    $params = [
-        'host'     => $config->database->host,
-        'username' => $config->database->username,
-        'password' => $config->database->password,
-        'dbname'   => $config->database->dbname,
-        'charset'  => $config->database->charset
-    ];
+	$class = 'Phalcon\Db\Adapter\Pdo\\' . $config->database->adapter;
+	$params = [
+		'host'     => $config->database->host,
+		'username' => $config->database->username,
+		'password' => $config->database->password,
+		'dbname'   => $config->database->dbname,
+		'charset'  => $config->database->charset
+	];
 
-    $connection = new $class($params);
+	$connection = new $class($params);
 
-    return $connection;
+	return $connection;
 });
 
 //Web
@@ -48,38 +61,69 @@ if( !$web )
 	die("Sitio web no configurado");
 }
 
-$container->setShared("view", function () {
+//Carga Plugins
+$plugins = Plugins::find([
+	'PluginStatus = :status:',
+	'bind' => [
+		'status' => 'enabled'
+	]
+]);
+for($i=0; $i < count($plugins); $i++) { 
+	if( $plugins[$i]->load($container) ) {
+		$plugins[$i]->action('init');
+	}
+}
+
+$container->set(
+	'cookies',
+	function () {
+		$cookies = new Cookies();
+
+		$cookies->useEncryption(false);
+
+		return $cookies;
+	}
+);
+
+/*$container->set(
+	'response',
+	function () {
+		$response = new Response();
+		return $response;
+	}
+);*/
+
+$acms_view = $web->theme->Name;
+if( $container->getRequest()->has('_view') ) {
+	$acms_view = $container->getRequest()->get('_view');
+	if( empty($acms_view) ) {
+		if( isset($_COOKIE['_view']) ) {
+			unset($_COOKIE['_view']);
+			setcookie('_view', null, -1, '/');
+		}
+	}
+	else {
+		setcookie('_view', $acms_view, time() + 86400 * 365, '/');
+	}
+} elseif( isset($_COOKIE['_view']) ) { //elseif( $this->getCookies()->has('_view') ) {
+	$acms_view = $_COOKIE['_view'];
+}
+
+$container->setShared("view", function () use ($acms_view) {
 	global $web;
 	$config = $this->getConfig();
 	$view = new View();
 
 	$view->setDI($this);
-	if( $this->getRequest()->has('_view') ) {
-		$_view = $this->getRequest()->get('_view');
-		if( empty($_view) ) {
-			if( isset($_COOKIE['_view']) ) {
-				unset($_COOKIE['_view']);
-				setcookie('_view', null, -1, '/');
-			}
-			//$this->getCookies()->delete('_view');
-		}
-		else {
-			setcookie('_view', $_view, time() + 86400 * 365, '/');
-			//$this->getCookies()->set('_view', $_view, $expire);
-		}
-	} elseif( isset($_COOKIE['_view']) ) { //elseif( $this->getCookies()->has('_view') ) {
-		$_view = $_COOKIE['_view'];
-	} else {
-		$_view = $web->theme->Name;
-	}
+	
 	//TODO: check if the view dir exists
-	if( empty($_view) ) {
-		$_view = 'en'; //TODO: take from de web theme
+	if( $web->Host == 'savalcorp2.netwalker.cl' && empty($acms_view) ) {
+		$acms_view = 'en'; //TODO: take from de web theme
 		if( substr($_REQUEST['_url'], 0, 4) == '/es/' ) {
-			$_view = 'es';
+			$acms_view = 'es';
 		}
 	}
-	$view->setViewsDir($config->front->templatesDir . $_view);
+	$view->setViewsDir($config->front->templatesDir . $acms_view);
 
 	$view->registerEngines([
 		".volt" => function ($view) {
@@ -90,6 +134,7 @@ $container->setShared("view", function () {
 				"separator" => "_",
 			]);
 			$compiler = $volt->getCompiler();
+			$compiler->addFunction('__', 'translate');
 			$compiler->addFunction('setlocaltime', 'wa_setlocaltime');
 			$compiler->addFunction('dateformat', 'strftime');
 			$compiler->addFunction('array_push', 'array_push');
@@ -97,9 +142,12 @@ $container->setShared("view", function () {
 			$compiler->addFunction('http_build_query', 'http_build_query');
 			$compiler->addFunction('number_format', 'number_format');
 			$compiler->addFunction('wa_menu', 'wa_menu');
+			$compiler->addFunction('getdate','volt_getdate');
 			$compiler->addFunction('replace','str_replace');
 			$compiler->addFunction('substr','mb_substr');
 			$compiler->addFunction('strpos', 'mb_strpos');
+			$compiler->addFunction('objects', 'volt_function_objects');
+			$compiler->addFunction('objects', 'volt_function_objectsX');
 			$compiler->addFunction('files', 'volt_function_files');
 			$compiler->addFunction('filesX', 'volt_function_filesX');
 			$compiler->addFunction('folders', 'volt_function_folders');
@@ -108,6 +156,7 @@ $container->setShared("view", function () {
 			$compiler->addFunction('getobjectX', 'volt_function_getobjectX');
 			$compiler->addFunction('getfileX', 'volt_function_getfileX');
 			$compiler->addFunction('paginate', 'volt_paginate');
+			$compiler->addFunction('exit', 'exit');
 			$compiler->addFunction('countFiles', 'volt_countfiles');
 			$compiler->addFunction('countFolders', 'volt_countfolders');
 			$compiler->addFunction('filter', 'volt_function_filter');
@@ -115,14 +164,29 @@ $container->setShared("view", function () {
 			$compiler->addFunction('filterObjects', 'volt_function_filterobjects');
 			$compiler->addFunction('filterObjectsX', 'volt_function_filterobjectsX');
 			$compiler->addFunction('getElementByName', 'volt_getElementByName');
+			$compiler->addFunction("dump", "print_r");
+			$compiler->addFunction('sql_getvar', 'volt_sql_getvar');
+			$compiler->addFunction('sql_getrow', 'volt_sql_getrow');
 			$compiler->addFunction('sql_getresults', 'volt_sql_getresults');
+			$compiler->addFunction('sql_exec', 'volt_sql_execute');
 			$compiler->addFunction('logs_visits', 'volt_logs_visits');
 			$compiler->addFunction('medwave_usuario', 'medwave_usuario');
+			$compiler->addFunction('setcookie', 'setcookie');
+			$compiler->addFunction('preg_match', 'preg_match');
+			$compiler->addFunction('file_get_contents', 'file_get_contents');
+			$compiler->addFunction('http_build_query', 'http_build_query');
+			$compiler->addFunction('simplexml_load_string', 'simplexml_load_string');
+			$compiler->addFunction('skin', 'volt_skin');
 			$compiler->addFilter('split', 'volt_filter_split');
 			$compiler->addFilter('tagsname', 'volt_filter_tagsname');
 			$compiler->addFilter('medwave_reference', 'medwave_filter_reference');
 			$compiler->addFilter('addlink', 'volt_addlink');
 			$compiler->addFilter('format', 'volt_format');
+			$compiler->addFilter( 'merge', function( $resolvedArgs, $exprArgs ) {
+				return 'array_replace_recursive('.$resolvedArgs.')';
+			}
+);
+			
 			return $volt;
 		}
 
@@ -141,17 +205,18 @@ catch (Exception $e)
 	die($e->getMessage());
 }
 
+$objectlog = null;
 $container->getView()->setVar('web', $web->toFront());
+$pathDir = '/';
 if( substr($_REQUEST['_url'], -5) == '.html' )
 {
-	$pathDir = '/';
 	if( count($objectspaths) > 1)
 	{
 		$path = [];
 		for($i = 0; $i < count($objectspaths) - 1; $i++ )
 		{
 			$path[$i] = $objectspaths[$i]->toFront($web, false, $pathDir);
-			if( $i == count($objectspaths) - 1 )
+			if( $i == count($objectspaths) - 2 )
 			{
 				$container->getView()->setVar('folder', $objectspaths[$i]->toFront($web, true, $pathDir));
 			}
@@ -160,13 +225,13 @@ if( substr($_REQUEST['_url'], -5) == '.html' )
 		$container->getView()->setVar('path', $path);
 	}
 	$container->getView()->setVar('file', end($objectspaths)->toFront($web, true, $pathDir));
-	end($objectspaths)->log();
+	$objectlog = end($objectspaths);
+	$pathDir .= $objectlog->Name . '.html';
 	$template = end($objectspaths)->type->Template;
 }
 elseif( count($objectspaths) > 0)
 {
 	$path = [];
-	$pathDir = '/';
 	for($i = 0; $i < count($objectspaths); $i++ ) {
 		$path[$i] = $objectspaths[$i]->toFront($web, false, $pathDir);
 		if( $i == count($objectspaths) - 1 ) {
@@ -176,22 +241,162 @@ elseif( count($objectspaths) > 0)
 	}
 	$container->getView()->setVar('path', $path);
 	$template = end($objectspaths)->type->Template;
-	end($objectspaths)->log();
+	$objectlog = end($objectspaths);
 }
 else
 {
 	$container->getView()->setVar('folder', $web->object->toFront($web, true, $pathDir));
 	$template = $web->object->type->Template;
-	$web->object->log();
+	$objectlog = $web->object;
 }
 
 if( isset($_REQUEST['tpl']) )
 {
-	$template = $_REQUEST['tpl'];
+	$template = str_replace('..', '', $_REQUEST['tpl']); //Sanitiza template
 }
 
+class CsvMultiple extends Csv {
+
+	public function load($file, $length = 0, $delimiter = '|', $enclosure = '"')
+	{
+		$fileHandler = fopen($file, "rb");
+
+		if( $fileHandler === false ) {
+			throw new Exception(
+				"Error opening translation file '" . $file . "'"
+			);
+		}
+
+		while ( ($data = fgetcsv($fileHandler, $length, $delimiter, $enclosure)) !== false) {
+			if( substr($data[0], 0, 1) === "#" || !isset($data[1])) {
+				continue;
+			}
+
+			$this->translate[$data[0]] = $data[1];
+		}
+
+		fclose($fileHandler);
+	}
+}
+
+//Check exist translate file
+$translator = null;
+$language = 'es';
+if( file_exists($container->getView()->getViewsDir() . 'index.' . $language) ) {
+	$interpolator = new InterpolatorFactory();
+	$options = [
+		'content' => $container->getView()->getViewsDir() . 'index.' . $language,
+		'delimiter' => '|',
+		'enclosure' => '"',
+	];
+	$translator = new CsvMultiple($interpolator, $options);
+}
+
+if( file_exists($container->getView()->getViewsDir() . $template . '.' . $language) ) {
+	if( is_null($translator) ) {
+		$interpolator = new InterpolatorFactory();
+		$options = [
+			'content' => $container->getView()->getViewsDir() . $template . '.' . $language,
+			'delimiter' => '|',
+			'enclosure' => '"',
+		];
+		$translator = new CsvMultiple($interpolator, $options);
+	} else {
+		$translator->load($container->getView()->getViewsDir() . $template . '.' . $language);
+	}
+}
+
+//Check if template exist
+if( !file_exists($container->getView()->getViewsDir() . $template . '.volt') ) {
+	$container->getResponse()->setStatusCode(404, "Not Found");
+	$container->getResponse()->send();
+	exit;
+}
+
+//Iterate plugins, and if loaded call function action = prerender
+for($i=0; $i < count($plugins); $i++) { 
+	$params = [
+		'web' => $web,
+		'path' => $pathDir,
+		'object' => $objectlog,
+		'view' => $acms_view,
+		'template' => $template,
+		'webkey' => $acms_cookie,
+		'event' => 'view',
+		'data' => null
+	];
+	$plugins[$i]->action('prerender', $params);
+}
+
+class ACMDateMon {
+	private $date = null;
+
+	function __construct(&$value)
+	{
+		$this->date = $value;
+	}
+
+	function __get($name)
+	{
+		if( $name == 'name' ) {
+			return strftime('%B', $this->date->getTimestamp());
+		}
+	}
+
+	public function __toString() {
+		return $this->date->format("m");
+	}
+
+}
+
+class ACMSDate {
+	private $date = null;
+	private $mon = null;
+
+	function __construct($value = 'now')
+	{
+		$this->date = new DateTime($value);
+	}
+
+	function __get($name)
+	{
+		switch ($name) {
+			case 'year':
+				return $this->date->format('Y');
+			case 'mon':
+				if( is_null($this->mon) ) {
+					$this->mon = new ACMDateMon($this->date);
+				}
+				return $this->mon;
+			case 'mday':
+				return $this->date->format('d');
+			case 'wday':
+				return $this->date->format('w');
+			case 'hour':
+				return $this->date->format('H');
+			case 'min':
+				return $this->date->format('i');
+			case 'sec':
+				return $this->date->format('s');
+			default:
+				return "OK";
+		}
+	}
+
+	public function __toString() {
+		return strval($this->date->getTimestamp());
+	}
+}
+
+$now = new ACMSDate();
+$container->getView()->setVar('now', $now);
+
 // Render a view
-echo $container->getView()->render($template);
+$content = $container->getView()->render($template);
+if( !$container->getResponse()->getHeaders()->has('Location') ) {
+	$container->getResponse()->setContent($content);
+}
+$container->getResponse()->send();
 
 function wa_menu($code, $num = null)
 {
@@ -203,7 +408,7 @@ function wa_menu($code, $num = null)
 	]);
 	if( !isset($menu->Id) )
 		return null;
-	
+
 	$items = $menu->getItemsParent($num, false);
 	
 	if( count($items) == 0 )
@@ -313,6 +518,11 @@ function wa_getobject($path, $options)
 
 }
 
+function volt_getdate($value)
+{
+	return new ACMSDate($value);
+}
+
 function volt_function_foldersX($reference, $options = null)
 {
 	global $web;
@@ -347,12 +557,12 @@ function volt_function_foldersX($reference, $options = null)
 	$offset = 0;
 	$limit = 0;
 	$sort = '';
-	$sortAsc = false;
+	$sortAsc = true;
 	if( !is_null($options) )
 	{
 		$offset = isset($options['offset']) ? intval($options['offset']) : $offset;
 		$limit = isset($options['limit']) ? intval($options['limit']) : $limit;
-		$sortAsc = isset($options['asc']) && $options['asc'] ? $sortDir = true : false;
+		$sortAsc = isset($options['desc']) && $options['desc'] ? false : true;
 	}
 
 	$folders = $object->getFolders(true, $offset, $limit, $sort, $sortAsc);
@@ -370,6 +580,189 @@ function volt_function_foldersX($reference, $options = null)
 	foreach($folders as $folder)
 	{
 		array_push($objectlist, $folder->toFront($web, true, $path));
+	}
+	return $objectlist;
+}
+
+function volt_function_objects($reference, $options = null)
+{
+	global $web;
+	$path = '';
+
+	if( is_numeric($reference) )
+	{
+		$object = Objects::findFirst($reference);
+	}
+	else
+	{
+		try {
+			$objectspaths = $web->getObjectsPath($reference);
+			$path = $reference;
+			$object = end($objectspaths);
+		}
+		catch(Exception $e)
+		{
+			return [];
+		}
+	}
+
+	if( !isset($object->Id) )
+	{
+		return [];
+	}
+	if( !$object->isFolder() )
+	{
+		return [];
+	}
+
+	$offset = 0;
+	$limit = 0;
+	$sort = '';
+	$sortAsc = true;
+	if( !is_null($options) ) {
+		$offset = isset($options['offset']) ? intval($options['offset']) : $offset;
+		$limit = isset($options['limit']) ? intval($options['limit']) : $limit;
+		$sort = isset($options['sort']) ? $options['sort'] : $sort;
+		$sortAsc = isset($options['desc']) && $options['desc'] ? false : true;
+	}
+
+	$files = $object->getObjects(true, $offset, $limit, $sort, $sortAsc);
+	if( count($files) == 0 )
+	{
+		return [];
+	}
+
+	if( empty($path) )
+	{
+		$path = $web->getUrlByReference($object->Id);
+	}
+
+	$objectlist = [];
+	foreach($files as $file)
+	{
+		array_push($objectlist, $file->toFront($web, false, $path));
+	}
+	return $objectlist;
+}
+
+function volt_function_objectsX($reference, $options = null)
+{
+	global $web;
+	$path = '';
+
+	if( is_numeric($reference) )
+	{
+		$object = Objects::findFirst($reference);
+	}
+	else
+	{
+		try {
+			$objectspaths = $web->getObjectsPath($reference);
+			$path = $reference;
+			$object = end($objectspaths);
+		}
+		catch(Exception $e)
+		{
+			return [];
+		}
+	}
+
+	if( !isset($object->Id) )
+	{
+		return [];
+	}
+	if( !$object->isFolder() )
+	{
+		return [];
+	}
+
+	$offset = 0;
+	$limit = 0;
+	$sort = '';
+	$sortAsc = true;
+	if( !is_null($options) ) {
+		$offset = isset($options['offset']) ? intval($options['offset']) : $offset;
+		$limit = isset($options['limit']) ? intval($options['limit']) : $limit;
+		$sort = isset($options['sort']) ? $options['sort'] : $sort;
+		$sortAsc = isset($options['desc']) && $options['desc'] ? false : true;
+	}
+
+	$files = $object->getObjects(true, $offset, $limit, $sort, $sortAsc);
+	if( count($files) == 0 )
+	{
+		return [];
+	}
+
+	if( empty($path) )
+	{
+		$path = $web->getUrlByReference($object->Id);
+	}
+
+	$objectlist = [];
+	foreach($files as $file)
+	{
+		array_push($objectlist, $file->toFront($web, true, $path));
+	}
+	return $objectlist;
+}
+
+function volt_function_files($reference, $options = null)
+{
+	global $web;
+	$path = '';
+
+	if( is_numeric($reference) )
+	{
+		$object = Objects::findFirst($reference);
+	}
+	else
+	{
+		try {
+			$objectspaths = $web->getObjectsPath($reference);
+			$path = $reference;
+			$object = end($objectspaths);
+		}
+		catch(Exception $e)
+		{
+			return [];
+		}
+	}
+
+	if( !isset($object->Id) )
+	{
+		return [];
+	}
+	if( !$object->isFolder() )
+	{
+		return [];
+	}
+
+	$offset = 0;
+	$limit = 0;
+	$sort = '';
+	$sortAsc = true;
+	if( !is_null($options) ) {
+		$offset = isset($options['offset']) ? intval($options['offset']) : $offset;
+		$limit = isset($options['limit']) ? intval($options['limit']) : $limit;
+		$sort = isset($options['sort']) ? $options['sort'] : $sort;
+		$sortAsc = isset($options['desc']) && $options['desc'] ? false : true;
+	}
+
+	$files = $object->getFiles(true, $offset, $limit, $sort, $sortAsc);
+	if( count($files) == 0 )
+	{
+		return [];
+	}
+
+	if( empty($path) )
+	{
+		$path = $web->getUrlByReference($object->Id);
+	}
+
+	$objectlist = [];
+	foreach($files as $file)
+	{
+		array_push($objectlist, $file->toFront($web, false, $path));
 	}
 	return $objectlist;
 }
@@ -408,12 +801,12 @@ function volt_function_filesX($reference, $options = null)
 	$offset = 0;
 	$limit = 0;
 	$sort = '';
-	$sortAsc = false;
+	$sortAsc = true;
 	if( !is_null($options) ) {
 		$offset = isset($options['offset']) ? intval($options['offset']) : $offset;
 		$limit = isset($options['limit']) ? intval($options['limit']) : $limit;
 		$sort = isset($options['sort']) ? $options['sort'] : $sort;
-		$sortAsc = isset($options['asc']) && $options['asc'] ? true : false;
+		$sortAsc = objectsOrder($options);
 	}
 
 	$files = $object->getFiles(true, $offset, $limit, $sort, $sortAsc);
@@ -462,8 +855,7 @@ function volt_countfiles($reference, $options = null) {
 		return [];
 	}
 
-	$files = $object->getFiles(true);
-	return count($files);
+	return $object->countFiles(true);
 }
 
 function volt_function_getobject($reference, $options = null)
@@ -529,7 +921,7 @@ function volt_function_getobjectX($reference, $options = null)
 	return $object->toFront($web, true, $path);
 }
 
-function volt_function_getfilex($reference, $options)
+function volt_function_getfilex($reference, $options = null)
 {
 	global $web;
 
@@ -552,13 +944,13 @@ function volt_function_getfilex($reference, $options)
 	}
 
 	$sort = '';
-	$sortAsc = false;
-	if( !is_null($options) )
-	{
-		$sortAsc = isset($options['asc']) && $options['asc'] ? $sortDir = true : false;
+	$sortAsc = true;
+	if( !is_null($options) ) {
+		$sort = isset($options['sort']) ? $options['sort'] : $sort;
+		$sortAsc = objectsOrder($options);
 	}
 
-	$childs = $parent->getChilds('file', true, 0, 1, '', $sortAsc);
+	$childs = $parent->getChilds('file', true, 0, 1, $sort, $sortAsc);
 
 	if( count($childs) == 0 )
 	{
@@ -605,8 +997,8 @@ function volt_paginate($total_items, $items_per_page, $current_page)
 	return (object)$pagination;
 }
 
-function volt_function_filter($parent, $field, $comparation, $value) {
-
+function volt_function_filter($parent, $field, $comparation, $value)
+{
 	//TODO: cath
 	$filter = Filters::getFilter($parent, $field, $comparation, $value);
 	if( is_null($filter) )
@@ -652,12 +1044,12 @@ function volt_function_filterobjects($filter, $options = null)
 	$offset = 0;
 	$limit = 0;
 	$sort = '';
-	$sortAsc = false;
+	$sortAsc = true;
 	if( !is_null($options) )
 	{
 		$offset = isset($options['offset']) ? intval($options['offset']) : $offset;
 		$limit = isset($options['limit']) ? intval($options['limit']) : $limit;
-		$sortAsc = isset($options['asc']) && $options['asc'] ? $sortDir = true : false;
+		$sortAsc = objectsOrder($options);
 	}
 
 	$objects = $filter->getObjects(false, $offset, $limit, $sort, $sortAsc);
@@ -682,12 +1074,12 @@ function volt_function_filterobjectsX($filter, $options = null)
 	$offset = 0;
 	$limit = 0;
 	$sort = '';
-	$sortAsc = false;
+	$sortAsc = true;
 	if( !is_null($options) )
 	{
 		$offset = isset($options['offset']) ? intval($options['offset']) : $offset;
 		$limit = isset($options['limit']) ? intval($options['limit']) : $limit;
-		$sortAsc = isset($options['asc']) && $options['asc'] ? $sortDir = true : false;
+		$sortAsc = objectsOrder($options);
 		$sort = isset($options['sort']) && $options['sort'] ? $options['sort'] : '';
 	}
 
@@ -734,11 +1126,75 @@ function volt_logs_visits($object_id) {
 	]);
 }
 
-function volt_sql_getresults($query, $params = null) {
-	$result =  DI::getDefault()->getDb()->fetchAll(
+function volt_sql_getvar($query, $params = null, $options = null)
+{
+	$result =  DI::getDefault()->getDb()->fetchOne(
 		$query,
-		\Phalcon\Db\Enum::FETCH_ASSOC,
+		\Phalcon\Db\Enum::FETCH_NUM,
+		$params
+	);
+	if( !is_array($result) || count($result) == 0) {
+		return '';
+	}
+	return $result[0];
+}
+
+function volt_sql_getrow($query, $params = null) {
+	$result =  DI::getDefault()->getDb()->fetchOne(
+		$query,
+		\Phalcon\Db\Enum::FETCH_OBJ,
 		$params
 	);
 	return $result;
+}
+
+function volt_sql_getresults($query, $params = null) {
+	$result =  DI::getDefault()->getDb()->fetchAll(
+		$query,
+		\Phalcon\Db\Enum::FETCH_OBJ,
+		$params
+	);
+	return $result;
+}
+
+function volt_sql_execute($query, $params = null) {
+	$result =  DI::getDefault()->getDb()->execute(
+		$query,
+		$params
+	);
+	return DI::getDefault()->getDb()->affectedRows();
+}
+
+function volt_skin($path) {
+	//if the first character is a slash, remove it
+	if( substr($path, 0, 1) == '/' ) {
+		$path = substr($path, 1);
+	}
+	return 'http://savalnet-cl2.netwalker.cl/skins/' . $path;
+}
+
+function objectsOrder(&$options)
+{
+	if( (isset($options['asc']) && !$options['asc']) || (isset($options['desc']) && $options['desc'])) {
+		return false;
+	}
+	return true;
+}
+
+function translate($text, $params = null)
+{
+	global $translator;
+	global $container;
+	global $language;
+
+	if( is_null($translator)) {
+		return $text;
+	}
+
+	$text_tranlated = $translator->_($text, is_null($params) ? [] : $params);
+	if( empty($text_tranlated) ){
+		return $text;
+	}
+
+	return $text_tranlated;
 }

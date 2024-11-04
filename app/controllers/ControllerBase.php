@@ -1,13 +1,11 @@
 <?php
 
-use Phalcon\Mvc\Controller;
-
-class ControllerBase extends Controller
+class ControllerBase extends \Phalcon\Mvc\Controller
 {
 	public $user = null;
 	public $web = null;
 
-	public function beforeExecuteRoute(Phalcon\Mvc\Dispatcher $dispatcher)
+	public function beforeExecuteRoute(\Phalcon\Mvc\Dispatcher $dispatcher)
 	{
 		if( !$this->isLoggedIn() ) {
 			$this->response->redirect('user/login');
@@ -19,10 +17,10 @@ class ControllerBase extends Controller
 	{
 		$this->view->user = $this->user;
 		$this->view->url = $this->url;
-		$this->view->webs = Webs::find();
+		$this->view->webs = \Webs::find();
 		if( $this->dispatcher->getParam(0) > 0 )
 		{
-			$this->web = Webs::findFirstByObjects_Id($this->dispatcher->getParam(0));
+			$this->web = \Webs::findFirstByObjects_Id($this->dispatcher->getParam(0));
 		}
 		if( is_null($this->web) && count($this->view->webs) ) {
 			$this->web = $this->view->webs[0];
@@ -51,7 +49,7 @@ class ControllerBase extends Controller
 	{
 		if( isset($_COOKIE['WASESSION']) && !empty($_COOKIE['WASESSION']) )
 		{
-			$session = UsersSessions::findFirst([
+			$session = \UsersSessions::findFirst([
 				'AccessKey = :key: and Status = :status:',
 				'bind' => [
 					'key' => $_COOKIE['WASESSION'],

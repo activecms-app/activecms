@@ -11,5 +11,12 @@ class ObjectsData extends \Phalcon\Mvc\Model
 			'Id',
 			['alias' => 'typedata']
 		);
+
+		$this->belongsTo(
+			'Objects_Id',
+			Objects::class,
+			'Id',
+			['alias' => 'object']
+		);
 	}
 }

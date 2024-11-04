@@ -27,7 +27,7 @@ class Webs extends \Phalcon\Mvc\Model
 	public static function getPublished($host)
 	{
 		return self::findFirst([
-			"Host = :host: and Published = 'yes'",
+			'conditions' => "Host = :host: and Published = 'yes'",
 			'bind' => [
 				'host' => $host
 			]
